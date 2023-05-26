@@ -14,18 +14,18 @@ Self-Supervised Learning (SSL) is a subfield of machine learning where the model
 
 [SimSiam](https://arxiv.org/abs/2011.10566) (Simple Siamese Networks) is a self-supervised learning approach that uses a simple framework to learn visual representations. The method involves two identical networks (hence the term "Siamese") that generate representations for two augmented views of the same image. The objective is to make these two representations as similar as possible. Unlike SimCLR and SupCon, SimSiam does not use negative pairs in its learning objective. This eliminates the necessity of large batch sizes and makes the method more computationally efficient.
 
-## 4 BYOL
+## 4 BYOL (TBD)
 
 [BYOL](https://arxiv.org/abs/2006.07733) (Bootstrap Your Own Latent) is a novel self-supervised learning method that, like SimSiam, does not rely on negative pairs for training. Instead, it learns representations by comparing the representations of two augmented views of the same image. BYOL introduces a concept of a "target network" which is a moving average of the main network. The main network learns to align its representations with the slowly moving target network, which provides a form of consistency regularization.
 
-## 5 SWAV
+## 5 SWAV (TBD)
 
 [SWAV](https://arxiv.org/abs/2006.09882) (Swapping Assignments between Views) is a self-supervised learning method that introduces a new way of assigning labels for the contrastive loss function. It uses a clustering algorithm to group similar representations together and assign them the same pseudo-label. SWAV introduces a unique "swap" operation where the assignments of the pseudo-labels are swapped between different views of the same image. This forces the model to learn consistent representations across different augmentations.
 
-## 6 MoCo
+## 6 MoCo (TBD)
 
 MoCo (Momentum Contrast) maintains a dynamic dictionary of data samples in the memory for generating negative samples, providing a large number of negative samples for contrastive learning.
 
-## 7 InfoNCE
+## 7 InfoNCE (TBD)
 
 InfoNCE (Information Noise-Contrastive Estimation) formulates contrastive learning as noise-contrastive estimation in the information theory framework.
