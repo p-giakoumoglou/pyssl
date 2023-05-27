@@ -35,7 +35,7 @@ The **models** folder contains Python files that implement different SSL models.
 
 The **utils** folder contains the implementation of various utilities used in this project.
 
-The ```transformation.py`` file contains the definitions of the transformations applied to the images during the training and evaluation stages of the SSL models.
+The ```transformation.py``` file contains the definitions of the transformations applied to the images during the training and evaluation stages of the SSL models.
 
 The ```main.py``` and ```main_linear.py``` files are the main scripts for training and evaluating SSL models. In ```main.py```, the pre-training of the backbone takes place, with t-SNE evaluation in the final epoch. In ```main_linear.py```, a linear classifier is trained on top of the frozen backbone to evaluate the representations of the SSL models.
 
