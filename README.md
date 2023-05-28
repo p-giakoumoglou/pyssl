@@ -31,31 +31,11 @@ ssl/
 
 ## 2. Methods
 
+Currently, SimCLR, SupCon, and SimSiam are implemented. More methods to be added soon.
+
 ### 2.1 SimCLR
 
 [SimCLR](https://arxiv.org/abs/2002.05709) (Simple Contrastive Learning of Visual Representations) is a framework for self-supervised learning of visual representations. It aims to learn representations by maximizing agreement between differently augmented views of the same data sample. 
-
-### 2.2 SupCon
-
-[SupCon](https://arxiv.org/abs/2004.11362) (Supervised Contrastive Learning) is another self-supervised learning method. While SimCLR uses a single positive pair (two augmented views of the same image) for each image in the batch, SupCon allows multiple positive pairs for each image. The key idea of SupCon is to use the labels available in supervised learning to define the positive and negative samples, which makes this method a hybrid of supervised and self-supervised learning.
-
-### 2.3 SimSiam
-
-[SimSiam](https://arxiv.org/abs/2011.10566) (Simple Siamese Networks) is a self-supervised learning approach that uses a simple framework to learn visual representations. The method involves two identical networks (hence the term "Siamese") that generate representations for two augmented views of the same image. The objective is to make these two representations as similar as possible. Unlike SimCLR and SupCon, SimSiam does not use negative pairs in its learning objective. This eliminates the necessity of large batch sizes and makes the method more computationally efficient.
-
-### 2.4 BYOL
-
-[BYOL](https://arxiv.org/abs/2006.07733) (Bootstrap Your Own Latent) is a novel self-supervised learning method that, like SimSiam, does not rely on negative pairs for training. Instead, it learns representations by comparing the representations of two augmented views of the same image. BYOL introduces a concept of a "target network" which is a moving average of the main network. The main network learns to align its representations with the slowly moving target network, which provides a form of consistency regularization.
-
-### 2.5 SWAV
-
-[SWAV](https://arxiv.org/abs/2006.09882) (Swapping Assignments between Views) is a self-supervised learning method that introduces a new way of assigning labels for the contrastive loss function. It uses a clustering algorithm to group similar representations together and assign them the same pseudo-label. SWAV introduces a unique "swap" operation where the assignments of the pseudo-labels are swapped between different views of the same image. This forces the model to learn consistent representations across different augmentations.
-
-## 3 Running
-
-Currently, SimCLR, SupCon, and SimSiam are implemented. More methods to be added soon.
-
-### 3.1 SimCLR
 
 Pre-training stage:
 
@@ -69,7 +49,9 @@ Linear classifier fine-tuning:
 python main_linear.py --model_name=simclr --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=30
 ```
 
-### 3.2 SupCon
+### 2.2 SupCon
+
+[SupCon](https://arxiv.org/abs/2004.11362) (Supervised Contrastive Learning) is another self-supervised learning method. While SimCLR uses a single positive pair (two augmented views of the same image) for each image in the batch, SupCon allows multiple positive pairs for each image. The key idea of SupCon is to use the labels available in supervised learning to define the positive and negative samples, which makes this method a hybrid of supervised and self-supervised learning.
 
 Pre-training stage:
 
@@ -83,7 +65,9 @@ Linear classifier fine-tuning:
 python main_linear.py --model_name=supcon --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=30
 ```
 
-### 3.3 SimSiam
+### 2.3 SimSiam
+
+[SimSiam](https://arxiv.org/abs/2011.10566) (Simple Siamese Networks) is a self-supervised learning approach that uses a simple framework to learn visual representations. The method involves two identical networks (hence the term "Siamese") that generate representations for two augmented views of the same image. The objective is to make these two representations as similar as possible. Unlike SimCLR and SupCon, SimSiam does not use negative pairs in its learning objective. This eliminates the necessity of large batch sizes and makes the method more computationally efficient.
 
 Pre-training stage:
 
@@ -96,3 +80,13 @@ Linear classifier fine-tuning:
 ```bash
 python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=10 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=100
 ```
+
+### 2.4 BYOL
+
+[BYOL](https://arxiv.org/abs/2006.07733) (Bootstrap Your Own Latent) is a novel self-supervised learning method that, like SimSiam, does not rely on negative pairs for training. Instead, it learns representations by comparing the representations of two augmented views of the same image. BYOL introduces a concept of a "target network" which is a moving average of the main network. The main network learns to align its representations with the slowly moving target network, which provides a form of consistency regularization.
+
+### 2.5 SWAV
+
+[SWAV](https://arxiv.org/abs/2006.09882) (Swapping Assignments between Views) is a self-supervised learning method that introduces a new way of assigning labels for the contrastive loss function. It uses a clustering algorithm to group similar representations together and assign them the same pseudo-label. SWAV introduces a unique "swap" operation where the assignments of the pseudo-labels are swapped between different views of the same image. This forces the model to learn consistent representations across different augmentations.
+
+
