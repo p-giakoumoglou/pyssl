@@ -29,17 +29,6 @@ ssl/
 └── transformations.py
 ```
 
-The **networks** folder contains Python files, each representing a different type of neural network backbone. These files include ```alexnet.py```, ```resnet.py```, ```vgg.py```, ```densenet.py```, and ```efficientnet.py```. Each file contains the implementation of the feature extractor (backbone) without the classifier used. In the ```__init__.py``` file, there is a dictionary named ```model_dict```. This dictionary serves as a central registry for all the models. Each key-value pair in the dictionary represents a backbone and its corresponding number of features as outputed from the last layer. For example, the key ```model_dict['alexnet']``` corresponds to the value ```[alexnet, 9216]```, where 'alexnet' is the model and '9216' is the number of features. Similarly, for ```'model_dict['resnet18']```, the corresponding value is ```[resnet18, 512]```, where 512 is the number of features​​.
-
-The **models** folder contains Python files that implement different SSL models. These models include BYOL (```byol.py```), SimCLR (```simclr.py```), SimSiam (```simsiam.py```), SupCon (```supcon.py```), and SWAV (```swav.py```). Each file defines a class for the respective model that inherits from PyTorch's ```nn.Module``` class. The classes have an ```__init__()``` method for initialization and a ```forward()``` method to define the forward pass of the model returning the loss. Also, each file contains the a loss function implementing the corresponding loss used in each model.
-
-The **utils** folder contains the implementation of various utilities used in this project.
-
-The ```transformation.py``` file contains the definitions of the transformations applied to the images during the training and evaluation stages of the SSL models.
-
-The ```main.py``` and ```main_linear.py``` files are the main scripts for training and evaluating SSL models. In ```main.py```, the pre-training of the backbone takes place, with t-SNE evaluation in the final epoch. In ```main_linear.py```, a linear classifier is trained on top of the frozen backbone to evaluate the representations of the SSL models.
-
-
 ## 2. Methods
 
 ### 2.1 SimCLR
