@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
-from dotmap import DotMap
+import argparse
 from sklearn.manifold import TSNE
 from tqdm import tqdm
 import pyfiglet
@@ -17,46 +17,49 @@ from utils import AverageMeter, LearningRateScheduler
 from utils import set_deterministic, set_all_seeds
 
 
-def parse_arguements():
-    """ Arguements for pre-training, we use DotMap rather than argparse """
-    args = DotMap()
+def parse_args():
+    parser = argparse.ArgumentParser(description="Argument Parser - Training")
     
-    # General
-    args.debug = True
-    args.data_dir = './data/'
-    args.ckpt_dir = './ckpts/'
-    args.logs_dir = './logs/'
-    args.device = 'cuda'
-    args.seed = 123
+    # Debug
+    parser.add_argument('--debug', action='store_true', default=True, help='Enable debug mode')
     
-    # SimSiam
-    args.model.name = "supcon" # simsiam, simclr, supcon
-    args.model.backbone = 'resnet18'
-    args.model.save_freq = 10
+    # Directories/Device/Seed
+    parser.add_argument('--data_dir', type=str, default='./data/', help='Directory for data')
+    parser.add_argument('--ckpt_dir', type=str, default='./ckpts/', help='Directory for checkpoints')
+    parser.add_argument('--logs_dir', type=str, default='./logs/', help='Directory for logs')
+    parser.add_argument('--device', type=str, default='cuda', help='Device for computation')
+    parser.add_argument('--seed', type=int, default=123, help='Random seed')
+    
+    # Model
+    parser.add_argument('--model_name', type=str, default='simsiam', help='Name of the model')
+    parser.add_argument('--backbone', type=str, default='resnet18', help='Backbone architecture')
+    parser.add_argument('--save_freq', type=int, default=10, help='Frequency of saving model checkpoints')
     
     # Dataset
-    args.dataset.name = "cifar10"
-    args.dataset.image_size = 32 
-    args.dataset.batch_size = 128
-    args.dataset.num_workers = 12
+    parser.add_argument('--dataset_name', type=str, default='cifar10', help='Name of the dataset')
+    parser.add_argument('--image_size', type=int, default=32, help='Size of input images')
+    parser.add_argument('--batch_size', type=int, default=512, help='Batch size for training')
+    parser.add_argument('--num_workers', type=int, default=4, help='Number of workers for data loading')
     
-    # Train - Optimizer
-    args.train.optimizer = "sgd"
-    args.train.weight_decay = 0.0005
-    args.train.momentum = 0.9
-    args.train.stop_at_epoch = 800
+    # Training - Optimizer
+    parser.add_argument('--optimizer', type=str, default='sgd', help='Optimizer for training')
+    parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
+    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum')
+    parser.add_argument('--stop_at_epoch', type=int, default=800, help='Stop training at the specified epoch')
     
-    # Train - Scheduler
-    args.train.warmup_epochs = 10
-    args.train.warmup_lr = 0
-    args.train.base_lr = 0.03
-    args.train.final_lr = 0
-    args.train.num_epochs = 800
-        
+    # Training - Scheduler
+    parser.add_argument('--warmup_epochs', type=int, default=10, help='Number of warm-up epochs')
+    parser.add_argument('--warmup_lr', type=float, default=0, help='Learning rate during warm-up')
+    parser.add_argument('--base_lr', type=float, default=0.03, help='Base learning rate')
+    parser.add_argument('--final_lr', type=float, default=0, help='Final learning rate')
+    parser.add_argument('--num_epochs', type=int, default=800, help='Number of epochs (only affects scheduler)')
+    
+    args = parser.parse_args()
+    
     if args.debug:
-        args.train.stop_at_epoch = 2
+        args.num_epochs = 2
 
-    print(pyfiglet.figlet_format(args.model.name.upper()))
+    print(pyfiglet.figlet_format(args.model_name.upper()))
     set_deterministic(args.seed)
     set_all_seeds(args.seed)
     print(f'Using {args.device.upper()}')
@@ -65,19 +68,19 @@ def parse_arguements():
     if not os.path.exists(args.logs_dir): os.makedirs(args.logs_dir)
     
     return args
-
+    
 
 def set_loader(args):
     """ Data loaders for the training and validation on CIFAR 10 """
-    transform = transformations.transform_dict[args.model.name.lower()]
-    if args.dataset.name.lower() == "cifar10":
+    transform = transformations.transform_dict[args.model_name.lower()]
+    if args.dataset_name.lower() == "cifar10":
         train_dataset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True, download=True, transform=transformations.TwoCropTransform(*transform))
         valid_dataset = torchvision.datasets.CIFAR10(root=args.data_dir, train=False, download=True, transform=transformations.TRANSFORM_EVAL)
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.dataset.batch_size, shuffle=True, num_workers=args.dataset.num_workers)
-        valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=int(args.dataset.batch_size//2), shuffle=False, num_workers=args.dataset.num_workers)
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+        valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
     else:
-        raise NotImplementedError(f'\U0000274C Dataset {args.dataset.name} not implemented')
-    print(f'Initialized loaders for {args.dataset.name.upper()}')
+        raise NotImplementedError(f'\U0000274C Dataset {args.dataset_name} not implemented')
+    print(f'Initialized loaders for {args.dataset_name.upper()}')
     return train_loader, valid_loader
 
 
@@ -85,21 +88,21 @@ def set_model(args):
     """
     Self-Supervised Learning Model: BYOL/SimCLR/SimSiam/SupCon/SWAV
     """
-    model_fun, feature_size = networks.model_dict[args.model.backbone]
+    model_fun, feature_size = networks.model_dict[args.backbone]
     backbone = model_fun()
-    print(f'\U0001F680 Backbone {args.model.backbone.upper()} initialized')
+    print(f'\U0001F680 Backbone {args.backbone.upper()} initialized')
     
-    if args.model.name.lower() == "simsiam":
+    if args.model_name.lower() == "simsiam":
         model = models.SimSiam(backbone, feature_size) 
-    elif args.model.name.lower() == "simclr":
+    elif args.model_name.lower() == "simclr":
         model = models.SimCLR(backbone, feature_size) 
-    elif args.model.name.lower() == "supcon":
+    elif args.model_name.lower() == "supcon":
         model = models.SupCon(backbone, feature_size) 
         print('\U000026A0 Using SupCon, labels are parsed in loss calculation')
     else:
-        NotImplementedError(f'Model {args.model.name.upper()} not implemented')
+        NotImplementedError(f'Model {args.model_name.upper()} not implemented')
     model = model.to(args.device)
-    print(f'\U0001F680 Model {args.model.name.upper()} initialized')
+    print(f'\U0001F680 Model {args.model_name.upper()} initialized')
     
     return model, feature_size
 
@@ -144,13 +147,13 @@ def pretrain(loader, model, optimizer, lr_scheduler, epoch, args):
     losses = AverageMeter('loss')
     lrs = AverageMeter('lr')
     
-    pbar = tqdm(loader, desc=f'Epoch {epoch}/{args.train.stop_at_epoch}')
+    pbar = tqdm(loader, desc=f'Epoch {epoch}/{args.stop_at_epoch}')
     for idx, ((images1, images2), labels) in enumerate(pbar):
         if args.debug == True and idx > 5: break
         bsz = images1.shape[0]       
         model.zero_grad()
         images1, images2 = images1.to(args.device, non_blocking=True), images2.to(args.device, non_blocking=True)
-        if args.model.name.lower() == 'supcon':
+        if args.model_name.lower() == 'supcon':
             loss = model.forward(images1, images2, labels).mean()
         else:
             loss = model.forward(images1, images2).mean()
@@ -211,20 +214,20 @@ def main(args):
     ######################
     
     # Set optimizer
-    optimizer = set_optimizer(args.train.optimizer,
+    optimizer = set_optimizer(args.optimizer,
                               model,
-                              lr=args.train.base_lr*args.dataset.batch_size/256, 
-                              momentum=args.train.momentum,
-                              weight_decay=args.train.weight_decay,
+                              lr=args.base_lr*args.batch_size/256, 
+                              momentum=args.momentum,
+                              weight_decay=args.weight_decay,
                               )
     
     # Set learning rate scheduler
     lr_scheduler = set_lr_scheduler(optimizer,
-                                args.train.warmup_epochs,
-                                args.train.warmup_lr*args.dataset.batch_size/256,
-                                args.train.num_epochs,
-                                args.train.base_lr*args.dataset.batch_size/256,
-                                args.train.final_lr*args.dataset.batch_size/256, 
+                                args.warmup_epochs,
+                                args.warmup_lr*args.batch_size/256,
+                                args.num_epochs,
+                                args.base_lr*args.batch_size/256,
+                                args.final_lr*args.batch_size/256, 
                                 len(train_loader),
                                 True,
                                 )
@@ -234,21 +237,21 @@ def main(args):
     #########################################
     print('\nStarting backbone pre-training')
     writer = SummaryWriter(log_dir=args.logs_dir)
-    for epoch in range(1, args.train.stop_at_epoch+1):
+    for epoch in range(1, args.stop_at_epoch+1):
         loss, lr = pretrain(train_loader, model, optimizer, lr_scheduler, epoch, args)
         writer.add_scalar('pretrain/loss', loss, epoch)
         writer.add_scalar('pretrain/lr', lr, epoch)
-        if epoch % args.model.save_freq == 0:
-            torch.save(model.state_dict(), args.ckpt_dir + args.model.name + '_' + str(epoch) +".pth")
+        if epoch % args.save_freq == 0:
+            torch.save(model.state_dict(), args.ckpt_dir + args.model_name + '_' + str(epoch) +".pth")
     
     # Save final model
-    torch.save(model.state_dict(), args.ckpt_dir + args.model.name + "_final.pth")
-    print('Model saved successfully under', args.ckpt_dir + args.model.name + "_final.pth")
+    torch.save(model.state_dict(), args.ckpt_dir + args.model_name + "_final.pth")
+    print('Model saved successfully under', args.ckpt_dir + args.model_name + "_final.pth")
 
     ##########################
     ####### 1.2 t-SNE ########
     ##########################
-    model.load_state_dict(torch.load(args.ckpt_dir + args.model.name + "_final.pth"))
+    model.load_state_dict(torch.load(args.ckpt_dir + args.model_name + "_final.pth"))
     print('\nt-SNE visualization in 2 dimensions')
     fig = tsne(valid_loader, model, args)
     writer.add_figure('t-sne', fig)
@@ -256,5 +259,5 @@ def main(args):
     writer.close()        
 
 if __name__ == '__main__':
-    args = parse_arguements()
+    args = parse_args()
     main(args)
