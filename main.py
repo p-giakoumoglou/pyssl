@@ -21,7 +21,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Argument Parser - Training")
     
     # Debug
-    parser.add_argument('--debug', action='store_true', default=True, help='Enable debug mode')
+    parser.add_argument('--debug', action='store_true', default=False, help='Enable debug mode')
     
     # Directories/Device/Seed
     parser.add_argument('--data_dir', type=str, default='./data/', help='Directory for data')
@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument('--num_workers', type=int, default=4, help='Number of workers for data loading')
     
     # Training - Optimizer
-    parser.add_argument('--optimizer', type=str, default='sgd', help='Optimizer for training')
+    #parser.add_argument('--optimizer', type=str, default='sgd', help='Optimizer for training')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='Momentum')
     parser.add_argument('--stop_at_epoch', type=int, default=800, help='Stop training at the specified epoch')
@@ -57,7 +57,7 @@ def parse_args():
     args = parser.parse_args()
     
     if args.debug:
-        args.num_epochs = 2
+        args.stop_at_epoch = 2
 
     print(pyfiglet.figlet_format(args.model_name.upper()))
     set_deterministic(args.seed)
@@ -134,7 +134,7 @@ def set_optimizer(optimizer_name, model, lr, momentum, weight_decay):
 def set_lr_scheduler(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, constant_predictor_lr=False):
     """ Learning Rate Scheduler for Self-Supervised Learning """
     scheduler = LearningRateScheduler(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, True)
-    print(f'Learning Rate Scheduler initialized (warmup_epochs={warmup_epochs}, warmup_lr={warmup_lr}, base_lr={final_lr}, base_lr={final_lr})')
+    print(f'Cosine learning rate decay scheduler initialized (warmup_epochs={warmup_epochs}, warmup_lr={warmup_lr}, base_lr={final_lr}, final_lr={final_lr})')
     return scheduler
 
 
@@ -147,7 +147,7 @@ def pretrain(loader, model, optimizer, lr_scheduler, epoch, args):
     losses = AverageMeter('loss')
     lrs = AverageMeter('lr')
     
-    pbar = tqdm(loader, desc=f'Epoch {epoch}/{args.stop_at_epoch}')
+    pbar = tqdm(loader, ascii = True, desc=f'Epoch {epoch}/{args.stop_at_epoch}')
     for idx, ((images1, images2), labels) in enumerate(pbar):
         if args.debug == True and idx > 5: break
         bsz = images1.shape[0]       
@@ -177,7 +177,7 @@ def tsne(loader, model, args):
     model.to(args.device)
     model.eval()
     with torch.no_grad():
-        pbar = tqdm(loader, desc='t-SNE evaluation')
+        pbar = tqdm(loader, ascii = True, desc='t-SNE evaluation')
         for idx, (images, labels) in enumerate(pbar):
             if args.debug == True and idx > 10: break
             images = images.to(args.device, non_blocking=True)

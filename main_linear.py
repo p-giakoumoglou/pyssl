@@ -20,7 +20,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Argument Parser - Evaluation")
     
     # Debug
-    parser.add_argument('--debug', action='store_true', default=True, help='Enable debug mode')
+    parser.add_argument('--debug', action='store_true', default=False, help='Enable debug mode')
     
     # Directories/Device/Seed
     parser.add_argument('--data_dir', type=str, default='./data/', help='Directory for data')
@@ -92,7 +92,7 @@ def train(loader, model, classifier, optimizer, lr_scheduler, epoch, args):
     losses = AverageMeter('loss')
     lrs = AverageMeter('lr')
     
-    pbar = tqdm(loader, desc=f'Epoch {epoch}/{args.num_epochs}')
+    pbar = tqdm(loader, ascii = True, desc=f'Epoch {epoch}/{args.num_epochs}')
     for idx, (images, labels) in enumerate(pbar):
         if args.debug == True and idx > 5: break
         bsz = labels.shape[0]
@@ -125,7 +125,7 @@ def validate(loader, model, classifier, args):
     acc1 = AverageMeter('acc@1')
     acc5 = AverageMeter('acc@5')
     
-    pbar = tqdm(loader, desc='Evaluating')
+    pbar = tqdm(loader, ascii = True, desc='Evaluating')
     for idx, (images, labels) in enumerate(pbar):
         if args.debug == True and idx > 5: break
         bsz = labels.shape[0]
@@ -186,6 +186,7 @@ def main(args):
                                 )
     
     # Fine-tuning classifier
+    top1, top5 = 0, 0
     print('\nStarting fine-tuning linear classifier on top of frozen pre-trained backbone')
     writer = SummaryWriter(log_dir=args.logs_dir)
     for epoch in range(1, args.num_epochs+1):
@@ -198,12 +199,17 @@ def main(args):
         writer.add_scalar('valid/loss', loss, epoch)
         writer.add_scalar('valid/acc1', lr, epoch)
         writer.add_scalar('valid/acc5', lr, epoch)
+        if acc1 > top1:
+            top1 = acc1
+            top5 = acc5
+            print(f'\U00002705 Found higher Acc@1 = {top1:.4f}% where Acc@5 = {top5:.4f}%')
         if epoch % args.save_freq == 0:
             torch.save(classifier.state_dict(), args.ckpt_dir + args.model_name + "_classifier_" + str(epoch) + ".pth")
         
     # Save final classifier
     torch.save(classifier.state_dict(), args.ckpt_dir + args.model_name + "_classifier_final.pth")
     print('Classifier saved successfully under', args.ckpt_dir + args.model_name + "_classifier_final.pth")
+    print(f'\n\U00002705 Higher Acc@1 = {top1:.4f}% with Acc@5 = {top5:.4f}%')
 
 
 if __name__ == '__main__':
