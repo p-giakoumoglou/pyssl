@@ -46,39 +46,13 @@ The ```main.py``` and ```main_linear.py``` files are the main scripts for traini
 
 [SimCLR](https://arxiv.org/abs/2002.05709) (Simple Contrastive Learning of Visual Representations) is a framework for self-supervised learning of visual representations. It aims to learn representations by maximizing agreement between differently augmented views of the same data sample. 
 
-For SimCLR, run:
-
-```bash
-python main.py --model_name=simclr --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0.000001 --momentum=0.9 --stop_at_epoch=100 --warmup_epochs=10 --warmup_lr=0 --base_lr=0.3 --final_lr=0 --num_epochs=800
-```
-
-```bash
-python main_linear.py --model_name=simclr --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=30
-```
-
 ### 2.2 SupCon
 
 [SupCon](https://arxiv.org/abs/2004.11362) (Supervised Contrastive Learning) is another self-supervised learning method. While SimCLR uses a single positive pair (two augmented views of the same image) for each image in the batch, SupCon allows multiple positive pairs for each image. The key idea of SupCon is to use the labels available in supervised learning to define the positive and negative samples, which makes this method a hybrid of supervised and self-supervised learning.
 
-```bash
-python main.py --model_name=supcon --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0.000001 --momentum=0.9 --stop_at_epoch=100 --warmup_epochs=10 --warmup_lr=0 --base_lr=0.3 --final_lr=0 --num_epochs=800
-```
-
-```bash
-python main_linear.py --model_name=supcon --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=30
-```
-
 ### 2.3 SimSiam
 
 [SimSiam](https://arxiv.org/abs/2011.10566) (Simple Siamese Networks) is a self-supervised learning approach that uses a simple framework to learn visual representations. The method involves two identical networks (hence the term "Siamese") that generate representations for two augmented views of the same image. The objective is to make these two representations as similar as possible. Unlike SimCLR and SupCon, SimSiam does not use negative pairs in its learning objective. This eliminates the necessity of large batch sizes and makes the method more computationally efficient.
-
-```bash
-python main.py --model_name=simsiam --backbone=resnet18 --batch_size=512 --optimizer=sgd --weight_decay=0.0005 --momentum=0.9 --stop_at_epoch=800 --warmup_epochs=10 --warmup_lr=0 --base_lr=0.03 --final_lr=0 --num_epochs=800
-```
-
-```bash
-python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=10 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=100
-```
 
 ### 2.4 BYOL
 
