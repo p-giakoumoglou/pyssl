@@ -5,9 +5,4 @@ matplotlib
 sklearn
 tqdm
 Pillow
-dotmap
 pyfiglet
-#datetime
-#random
-#platform
-#os
