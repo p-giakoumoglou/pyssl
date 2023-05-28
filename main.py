@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument('--num_workers', type=int, default=4, help='Number of workers for data loading')
     
     # Training - Optimizer
-    #parser.add_argument('--optimizer', type=str, default='sgd', help='Optimizer for training')
+    parser.add_argument('--optimizer', type=str, default='sgd', help='Optimizer for training')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='Momentum')
     parser.add_argument('--stop_at_epoch', type=int, default=800, help='Stop training at the specified epoch')
