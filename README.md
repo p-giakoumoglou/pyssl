@@ -1,5 +1,4 @@
 # Self-Supervised Learning
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 A PyTorch implementation for the various Self-Supervised Learning (SSL) models.
 
 ## Dependencies
