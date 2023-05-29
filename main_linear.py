@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 import argparse
 from tqdm import tqdm
+from datetime import datetime
 import pyfiglet
 warnings.simplefilter("ignore")
 
@@ -62,6 +63,7 @@ def parse_args():
     set_deterministic(args.seed)
     set_all_seeds(args.seed)
     print(f'Using {args.device.upper()}')
+    args.logs_dir += datetime.now().strftime("%Y-%m-%d_%H-%M-%S_") + args.model_name.lower() +  "_linear/"
     if not os.path.exists(args.ckpt_dir): os.makedirs(args.ckpt_dir)
     if not os.path.exists(args.data_dir): os.makedirs(args.data_dir)
     if not os.path.exists(args.logs_dir): os.makedirs(args.logs_dir)
