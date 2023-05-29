@@ -14,7 +14,7 @@ warnings.simplefilter("ignore")
 import networks
 import models
 import transformations
-from utils import AverageMeter, LearningRateScheduler
+from utils import AverageMeter, CosineDecayWarmup
 from utils import set_deterministic, set_all_seeds
 
 
@@ -135,7 +135,7 @@ def set_optimizer(optimizer_name, model, lr, momentum, weight_decay):
 
 def set_lr_scheduler(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, constant_predictor_lr=False):
     """ Learning Rate Scheduler for Self-Supervised Learning """
-    scheduler = LearningRateScheduler(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, True)
+    scheduler = CosineDecayWarmup(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, True)
     print(f'Cosine learning rate decay scheduler initialized (warmup_epochs={warmup_epochs}, warmup_lr={warmup_lr}, base_lr={base_lr}, final_lr={final_lr})')
     return scheduler
 

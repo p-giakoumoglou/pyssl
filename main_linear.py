@@ -204,14 +204,14 @@ def main(args):
         if acc1 > top1:
             top1 = acc1
             top5 = acc5
-            print(f'\U00002705 Found higher Acc@1 = {top1:.4f}% where Acc@5 = {top5:.4f}%')
+            print(f'\U00002705 Found higher Acc@1={top1:.4f}% where Acc@5={top5:.4f}%')
         if epoch % args.save_freq == 0:
             torch.save(classifier.state_dict(), args.ckpt_dir + args.model_name + "_classifier_" + str(epoch) + ".pth")
         
     # Save final classifier
     torch.save(classifier.state_dict(), args.ckpt_dir + args.model_name + "_classifier_final.pth")
     print('Classifier saved successfully under', args.ckpt_dir + args.model_name + "_classifier_final.pth")
-    print(f'\n\U00002705 Higher Acc@1 = {top1:.4f}% with Acc@5 = {top5:.4f}%')
+    print(f'\n\U00002705 Higher Acc@1={top1:.4f}% with Acc@5={top5:.4f}%')
 
 
 if __name__ == '__main__':
