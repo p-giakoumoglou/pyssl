@@ -46,20 +46,28 @@ def parse_args():
     parser.add_argument('--optimizer', type=str, default='sgd', help='Optimizer for training')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='Momentum')
-    parser.add_argument('--stop_at_epoch', type=int, default=800, help='Stop training at the specified epoch')
     
     # Training - Scheduler
     parser.add_argument('--warmup_epochs', type=int, default=10, help='Number of warm-up epochs')
     parser.add_argument('--warmup_lr', type=float, default=0, help='Learning rate during warm-up')
     parser.add_argument('--base_lr', type=float, default=0.03, help='Base learning rate')
     parser.add_argument('--final_lr', type=float, default=0, help='Final learning rate')
-    parser.add_argument('--num_epochs', type=int, default=800, help='Number of epochs (only affects scheduler)')
+    parser.add_argument('--num_epochs', type=int, default=800, help='Number of epochs (affects scheduler as well)')
     
     args = parser.parse_args()
     
     if args.debug:
-        args.stop_at_epoch = 2
-
+        args.num_epochs = 2
+        
+    if args.warmup_epochs == 0:
+        args.warmup_lr = 0
+        print('No warm-up. Suggesting enabling it for batch_size>256')
+        
+    if args.base_lr == args.final_lr:
+        print('Using linear learning rate')
+    else:
+        print('Using cosine learning rate decay')
+    
     print(pyfiglet.figlet_format(args.model_name.upper()))
     set_deterministic(args.seed)
     set_all_seeds(args.seed)
@@ -164,7 +172,7 @@ def pretrain(loader, model, optimizer, lr_scheduler, epoch, args):
     losses = AverageMeter('loss')
     lrs = AverageMeter('lr')
     
-    pbar = tqdm(loader, ascii = True, desc=f'Epoch {epoch}/{args.stop_at_epoch}')
+    pbar = tqdm(loader, ascii = True, desc=f'Epoch {epoch}/{args.num_epochs}')
     for idx, ((images1, images2), labels) in enumerate(pbar):
         if args.debug == True and idx > 5: break
         bsz = images1.shape[0]       
@@ -254,7 +262,7 @@ def main(args):
     #########################################
     print('\nStarting backbone pre-training')
     writer = SummaryWriter(log_dir=args.logs_dir)
-    for epoch in range(1, args.stop_at_epoch+1):
+    for epoch in range(1, args.num_epochs+1):
         loss, lr = pretrain(train_loader, model, optimizer, lr_scheduler, epoch, args)
         writer.add_scalar('pretrain/loss', loss, epoch)
         writer.add_scalar('pretrain/lr', lr, epoch)

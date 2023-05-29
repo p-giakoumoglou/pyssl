@@ -52,12 +52,21 @@ def parse_args():
     parser.add_argument('--warmup_lr', type=float, default=0, help='Learning rate during warm-up')
     parser.add_argument('--base_lr', type=float, default=30, help='Base learning rate')
     parser.add_argument('--final_lr', type=float, default=0, help='Final learning rate')
-    parser.add_argument('--num_epochs', type=int, default=100, help='Number of epochs')
+    parser.add_argument('--num_epochs', type=int, default=800, help='Number of epochs (affects scheduler as well)')
     
     args = parser.parse_args()
     
     if args.debug:
         args.stop_at_epoch = 2
+        
+    if args.warmup_epochs == 0:
+        args.warmup_lr = 0
+        print('No warm-up. Suggesting enabling it for batch_size>256')
+        
+    if args.base_lr == args.final_lr:
+        print('Using linear learning rate')
+    else:
+        print('Using cosine learning rate decay')
 
     print(pyfiglet.figlet_format(args.model_name.upper()))
     set_deterministic(args.seed)
