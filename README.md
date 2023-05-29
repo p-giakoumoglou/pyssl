@@ -24,11 +24,9 @@ Project structure is as follows:
 ssl/
 ├── models
 │ ├── __init__.py
-│ ├── byol.py
 │ ├── simclr.py
 │ ├── simsiam.py
-│ ├── supcon.py
-│ └── swav.py
+│ └── supcon.py
 ├── networks
 │ ├── __init__.py
 │ ├── alexnet.py
