@@ -98,6 +98,6 @@ python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 
 - Support Distributed Data Parallel (DDP)
 - Support ImageNet
 - Add BYOL, SWAV, SimCLRv2
-- Add MoCo, MoCov2
+- Add MoCo, MoCov2, MoCov3
 - Add InfoMin, InstDis, PIRL, CPC, CPCv2, CPCv2, LA, CMC
 
