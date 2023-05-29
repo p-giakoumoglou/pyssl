@@ -51,7 +51,7 @@ ssl/
 
 ## Models
 
-### Run [SimCLR (Simple Contrastive Learning of Visual Representations)](https://arxiv.org/abs/2002.05709)
+### Run [SimCLR](https://arxiv.org/abs/2002.05709) (Simple Contrastive Learning of Visual Representations)
 
 Pre-training stage:
 
@@ -65,11 +65,11 @@ Linear classifier fine-tuning:
 python main_linear.py --model_name=simclr --backbone=resnet18--batch_size=512 --optimizer=sgd_nesterov --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --base_lr=0.1 --final_lr=0 --num_epochs=100
 ```
 
-### Run [SupCon (Supervised Contrastive Learning)](https://arxiv.org/abs/2004.11362)
+### Run [SupCon](https://arxiv.org/abs/2004.11362) (Supervised Contrastive Learning)
 
-[SupCon](https://arxiv.org/abs/2004.11362) (Supervised Contrastive Learning) is another SSL method. While SimCLR uses a single positive pair (two augmented views of the same image) for each image in the batch, SupCon allows multiple positive pairs for each image. The key idea of SupCon is to use the labels available in supervised learning to define the positive and negative samples, which makes this method a hybrid of supervised and SSL.
+TODO
 
-### Run [SimSiam (Simple Siamese Networks)](https://arxiv.org/abs/2011.10566)
+### Run [SimSiam](https://arxiv.org/abs/2011.10566) (Simple Siamese Networks)
 
 Pre-training stage:
 
