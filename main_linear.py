@@ -197,8 +197,8 @@ def main(args):
         # Validate classifier
         loss, acc1, acc5 = validate(valid_loader, model, classifier, args)
         writer.add_scalar('valid/loss', loss, epoch)
-        writer.add_scalar('valid/acc1', lr, epoch)
-        writer.add_scalar('valid/acc5', lr, epoch)
+        writer.add_scalar('valid/acc1', acc1, epoch)
+        writer.add_scalar('valid/acc5', acc5, epoch)
         if acc1 > top1:
             top1 = acc1
             top5 = acc5
