@@ -72,7 +72,7 @@ python main.py --model_name=simsiam --backbone=resnet18 --batch_size=512 --optim
 Linear classifier fine-tuning:
 
 ```bash
-python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=10 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=100
+python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --base_lr=30 --final_lr=0 --num_epochs=100
 ```
 
 ### 2.4 BYOL
