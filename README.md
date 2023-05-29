@@ -46,30 +46,18 @@ Currently, SimCLR, SupCon, and SimSiam are implemented. More methods to be added
 Pre-training stage:
 
 ```bash
-python main.py --model_name=simclr --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0.000001 --momentum=0.9 --stop_at_epoch=100 --warmup_epochs=10 --warmup_lr=0 --base_lr=0.3 --final_lr=0 --num_epochs=800
+python main.py --model_name=simclr --backbone=resnet18 -batch_size=512 --optimizer=lars_simclr --weight_decay=0.0001 --momentum=0.9 --stop_at_epoch=1000 --warmup_epochs=10 --warmup_lr=0 --base_lr=1.0 --final_lr=0 --num_epochs=1000
 ```
 
 Linear classifier fine-tuning:
 
 ```bash
-python main_linear.py --model_name=simclr --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=30
+python main_linear.py --model_name=simclr --backbone=resnet18--batch_size=512 --optimizer=sgd_nesterov --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --base_lr=0.1 --final_lr=0 --num_epochs=100
 ```
 
 ### 2.2 SupCon
 
 [SupCon](https://arxiv.org/abs/2004.11362) (Supervised Contrastive Learning) is another SSL method. While SimCLR uses a single positive pair (two augmented views of the same image) for each image in the batch, SupCon allows multiple positive pairs for each image. The key idea of SupCon is to use the labels available in supervised learning to define the positive and negative samples, which makes this method a hybrid of supervised and SSL.
-
-Pre-training stage:
-
-```bash
-python main.py --model_name=supcon --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0.000001 --momentum=0.9 --stop_at_epoch=100 --warmup_epochs=10 --warmup_lr=0 --base_lr=0.3 --final_lr=0 --num_epochs=800
-```
-
-Linear classifier fine-tuning:
-
-```bash
-python main_linear.py --model_name=supcon --backbone=resnet18 --batch_size=256 --optimizer=sgd --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --warmup_lr=0 --base_lr=30 --final_lr=0 --num_epochs=30
-```
 
 ### 2.3 SimSiam
 
