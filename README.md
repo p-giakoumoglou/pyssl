@@ -89,4 +89,11 @@ python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 
 
 [SWAV](https://arxiv.org/abs/2006.09882) (Swapping Assignments between Views) is a SSL method that introduces a new way of assigning labels for the contrastive loss function. It uses a clustering algorithm to group similar representations together and assign them the same pseudo-label. SWAV introduces a unique "swap" operation where the assignments of the pseudo-labels are swapped between different views of the same image. This forces the model to learn consistent representations across different augmentations.
 
+## 3. Results
+
+| **Model** | **Acc@1** | **Acc@5** |
+|-----------|-----------|-----------|
+| SimSiam   | 91.65%    | 99.63%    |
+| SimCLR    |           |           |
+| SupCon    |           |           |
 
