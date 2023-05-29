@@ -13,9 +13,9 @@ warnings.simplefilter("ignore")
 
 import networks
 import models
+import optimizers
 import transformations
-from utils import AverageMeter, CosineDecayWarmup
-from utils import set_deterministic, set_all_seeds
+from utils import AverageMeter, set_deterministic, set_all_seeds
 
 
 def parse_args():
@@ -123,19 +123,34 @@ def set_optimizer(optimizer_name, model, lr, momentum, weight_decay):
     }]
     if optimizer_name.lower() == 'sgd':
         optimizer = torch.optim.SGD(parameters, lr=lr, momentum=momentum, weight_decay=weight_decay)
+        txt = f'(lr={lr}, mom={momentum}, wd={weight_decay})'
+    elif optimizer_name.lower() == 'sgd_nesterov':
+        optimizer = torch.optim.SGD(parameters, lr=lr, momentum=momentum, weight_decay=weight_decay, nesterov=True)
+        txt = f'with Nesterov momentum (lr={lr}, mom={momentum}, wd={weight_decay})'
     elif optimizer_name.lower() == 'adam':
         optimizer = torch.optim.Adam(parameters, lr=lr, weight_decay=weight_decay)
+        txt = f'(lr={lr}, wd={weight_decay})'
     elif optimizer_name.lower() == 'adamw':
         optimizer = torch.optim.AdamW(parameters, lr=lr, weight_decay=weight_decay)
+        txt = f'(lr={lr}, wd={weight_decay})'
+    elif optimizer_name.lower() == 'larc':
+        optimizer = optimizers.LARC(torch.optim.SGD(parameters, lr=lr,  momentum=momentum, weight_decay=weight_decay), trust_coefficient=0.001, clip=False)
+        txt = f'(lr={lr}, mom={momentum}, wd={weight_decay}, trust_coefficient=0.001, clip=False)'
+    elif optimizer_name.lower() == 'lars':
+        optimizer = optimizers.LARS(parameters, lr=lr, momentum=momentum, weight_decay=weight_decay)
+        txt = f'(lr={lr}, wd={weight_decay})'
+    elif optimizer_name.lower() == 'lars_simclr':
+        optimizer = optimizers.LARS_SimCLR(model.named_modules(), lr=lr, momentum=momentum, weight_decay=weight_decay)
+        txt = f'(lr={lr}, mom={momentum}, wd={weight_decay})'
     else:
         NotImplementedError(f'Optimizer {optimizer_name.upper()} not implemented')
-    print(f'Optimizer {optimizer.__class__.__name__} initialized (lr={lr}, mom={momentum}, wd={weight_decay})')
+    print(f'Optimizer {optimizer.__class__.__name__} initialized', txt)
     return optimizer
 
 
 def set_lr_scheduler(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, constant_predictor_lr=False):
     """ Learning Rate Scheduler for Self-Supervised Learning """
-    scheduler = CosineDecayWarmup(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, True)
+    scheduler = optimizers.CosineDecayWarmup(optimizer, warmup_epochs, warmup_lr, num_epochs, base_lr, final_lr, iter_per_epoch, True)
     print(f'Cosine learning rate decay scheduler initialized (warmup_epochs={warmup_epochs}, warmup_lr={warmup_lr}, base_lr={base_lr}, final_lr={final_lr})')
     return scheduler
 
