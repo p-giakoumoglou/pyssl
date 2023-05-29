@@ -89,9 +89,25 @@ python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 
 
 ## 3. Results
 
-| **Model** | **Acc@1** | **Acc@5** |
-|-----------|-----------|-----------|
-| SimSiam   | 91.70%    | 99.62%    |
-| SimCLR    |           |           |
-| SupCon    |           |           |
+In this section, we present the results of different SSL models.
 
+| **Model** | **Backbone** | **Dataset** | **Acc@1** | **Acc@5** |
+|-----------|--------------|-------------|-----------|-----------|
+| SimSiam   | ResNet-18    | CIFAR-10    | 91.70%    | 99.62%    |
+| SimCLR    | ResNet-18    | CIFAR-10    |           |           |
+| SupCon    | ResNet-18    | CIFAR-10    |           |           |
+
+### 3.1 SimSiam
+
+Loss and learning rate during the pre-training phase of SimSiam:
+![image](https://github.com/giakou4/ssl/assets/57758089/5f6010f5-dede-46a7-9ab1-586a9fa23f5e)
+
+Loss and learning rate during fine-tuning linear classifier on top of frozen pre-trained backbone:
+![image](https://github.com/giakou4/ssl/assets/57758089/197d52e5-9eda-477e-9fdb-58d89fdf5fa3)
+
+Loss, top@1 accuracy, and top@5 accuracy during validation of frozen linear classifier and pre-trained backbone:
+![image](https://github.com/giakou4/ssl/assets/57758089/1d9704ed-05e3-46fe-969c-0299478c4140)
+
+### 3.2 SimCLR
+
+### 3.3 SupCon
