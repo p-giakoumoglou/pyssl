@@ -59,7 +59,7 @@ python main.py --model_name=simclr --backbone=resnet18 --batch_size=512 --optimi
 Linear classifier fine-tuning:
 
 ```bash
-python main_linear.py --model_name=simclr --backbone=resnet18--batch_size=512 --optimizer=sgd_nesterov --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --base_lr=0.1 --final_lr=0 --num_epochs=100
+python main_linear.py --model_name=simclr --backbone=resnet18 --batch_size=512 --optimizer=sgd_nesterov --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --base_lr=0.1 --final_lr=0 --num_epochs=100
 ```
 
 ### Run [SupCon](https://arxiv.org/abs/2004.11362) (Supervised Contrastive Learning)
