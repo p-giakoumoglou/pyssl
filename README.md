@@ -89,7 +89,7 @@ python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 
 | **Model** | **Backbone** | **Dataset** | **Acc@1** | **Acc@5** |
 |-----------|--------------|-------------|-----------|-----------|
 | SimSiam   | ResNet-18    | CIFAR-10    | 91.70%    | 99.62%    |
-| SimCLR    | ResNet-18    | CIFAR-10    |           |           |
+| SimCLR    | ResNet-18    | CIFAR-10    | 85.35%    | 99.34%    |
 | SupCon    | ResNet-18    | CIFAR-10    |           |           |
 
 ## TODO
