@@ -14,6 +14,6 @@ class EarlyStopping:
         self.possible_stop = delta >= (self.patience - 1) 
         stop = delta >= self.patience
         if stop:
-            print(f'Stopping training early as no improvement observed in last {self.patience} epochs \n.'  
-                  f'Best results observed at epoch {self.best_epoch}, best model saved as best.pt.')
+            print(f'Stopping training early as no improvement observed in last {self.patience} epochs \n'  
+                  f'Best results observed at epoch {self.best_epoch}')
         return stop
