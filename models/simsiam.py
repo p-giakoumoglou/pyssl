@@ -17,16 +17,16 @@ import torch.nn.functional as F
 __all__ = ['SimSiam']
 
 
-def negative_cosine_similarity(q, z):
+def negative_cosine_similarity(p, z):
     """ Negative Cosine Similarity """
     z = z.detach()
-    q = F.normalize(q, dim=1)
+    p = F.normalize(p, dim=1)
     z = F.normalize(z, dim=1)
-    return -(q*z).sum(dim=1).mean()
+    return -(p*z).sum(dim=1).mean()
     
 
 class Projector(nn.Module):
-    """ Projection Head """
+    """ Projection Head for SimSiam """
     def __init__(self, in_dim, hidden_dim=2048, out_dim=2048):
         super().__init__()
 
@@ -53,7 +53,7 @@ class Projector(nn.Module):
 
 
 class Predictor(nn.Module):
-    """ Predictor """
+    """ Predictor for SimSiam """
     def __init__(self, in_dim=2048, hidden_dim=512, out_dim=2048):
         super().__init__()
         
@@ -71,7 +71,7 @@ class Predictor(nn.Module):
 
 
 class SimSiam(nn.Module):
-    """ Contrastive Learning: SimSiam """
+    """ Distillation-based Self-Supervised Learning: SimSiam """
     def __init__(self, backbone, feature_size):
         super().__init__()
         
@@ -83,10 +83,9 @@ class SimSiam(nn.Module):
         self.encoder = nn.Sequential(self.backbone, self.projector)
         
     def forward(self, x1, x2):
-        f, h = self.encoder, self.predictor
-        z1, z2 = f(x1), f(x2) # encoding
-        q1, q2 = h(z1), h(z2) # predictor
-        loss = negative_cosine_similarity(q1, z2) / 2 + negative_cosine_similarity(q2, z1) / 2 # symmetrical losses
+        z1, z2 = self.encoder(x1), self.encoder(x2) 
+        p1, p2 = self.predictor(z1), self.predictor(z2)
+        loss = negative_cosine_similarity(p1, z2) / 2 + negative_cosine_similarity(p2, z1) / 2
         return loss
 
 

@@ -63,6 +63,7 @@ def SupConLoss(features, labels=None, mask=None, temperature=0.07, contrast_mode
 
 
 class Projector(nn.Module):
+    """ Projector for SupCon """
     def __init__(self, in_dim, hidden_dim=None, out_dim=128):
         super().__init__()
         
@@ -80,6 +81,7 @@ class Projector(nn.Module):
 
 
 class SupCon(nn.Module):
+    """ Contrastive-based Self-Supervised Learning: SupCon"""
     def __init__(self, backbone, feature_size):
         super().__init__()
         

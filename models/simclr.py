@@ -18,6 +18,7 @@ __all__ = ['SimCLR']
 
 
 def NT_XentLoss(z1, z2, temperature=0.5):
+    """ NT-Xent loss """
     z1 = F.normalize(z1, dim=1)
     z2 = F.normalize(z2, dim=1)
     N, Z = z1.shape 
@@ -38,6 +39,7 @@ def NT_XentLoss(z1, z2, temperature=0.5):
     
     
 class Projector(nn.Module):
+    """ Projector for SimCLR """
     def __init__(self, in_dim, hidden_dim=None, out_dim=128):
         super().__init__()
         
@@ -55,6 +57,7 @@ class Projector(nn.Module):
 
 
 class SimCLR(nn.Module):
+    """ Contrastive-based Self-Supervised Learning: SimCLR"""
     def __init__(self, backbone, feature_size):
         super().__init__()
         
