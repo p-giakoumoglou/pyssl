@@ -63,6 +63,7 @@ class CosineDecayWD(CosineDecay):
     def get_wd(self):
         return self.current_value
     
+    
 if __name__ == "__main__":
     import torchvision
     import torch
