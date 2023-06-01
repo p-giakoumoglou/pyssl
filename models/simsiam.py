@@ -17,11 +17,12 @@ import torch.nn.functional as F
 __all__ = ['SimSiam']
 
 
-def negative_cosine_similarity(p, z):
+def negative_cosine_similarity(q, z):
     """ Negative Cosine Similarity """
-    p = F.normalize(p, dim=1)
+    z = z.detach()
+    q = F.normalize(q, dim=1)
     z = F.normalize(z, dim=1)
-    return -(p*z).sum(dim=1).mean()
+    return -(q*z).sum(dim=1).mean()
     
 
 class Projector(nn.Module):
@@ -84,8 +85,8 @@ class SimSiam(nn.Module):
     def forward(self, x1, x2):
         f, h = self.encoder, self.predictor
         z1, z2 = f(x1), f(x2) # encoding
-        p1, p2 = h(z1), h(z2) # predictor
-        loss = negative_cosine_similarity(p1, z2.detach()) / 2 + negative_cosine_similarity(p2, z1.detach()) / 2 # symmetrical losses
+        q1, q2 = h(z1), h(z2) # predictor
+        loss = negative_cosine_similarity(q1, z2) / 2 + negative_cosine_similarity(q2, z1) / 2 # symmetrical losses
         return loss
 
 
