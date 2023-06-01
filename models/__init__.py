@@ -3,5 +3,6 @@ from .simclr import SimCLR
 from .simsiam import SimSiam
 from .supcon import SupCon
 from .swav import SWAV
+from .dino import DINO
 
-__all__ = ['BYOL', 'SimCLR', 'SimSiam', 'SupCon', 'SWAV',]
+__all__ = ['SimCLR', 'SimSiam', 'SupCon']
