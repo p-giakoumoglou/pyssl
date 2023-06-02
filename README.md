@@ -23,27 +23,24 @@ Project structure is as follows:
 ssl/
 ├── models
 │ ├── __init__.py
+│ ├── byol.py
 │ ├── simclr.py
 │ ├── simsiam.py
 │ └── supcon.py
 ├── networks
 │ ├── __init__.py
-│ ├── alexnet.py
 │ ├── classifier.py
-│ ├── densenet.py
-│ ├── efficientnet.py
-│ ├── resnet.py
-│ └── vgg.py
+│ └── resnet.py
 ├── optimizers
 │ ├── __init__.py
-│ ├── cosine_decay_warmup.py
 │ ├── larc.py
 │ ├── lars.py
 │ └── lars_simclr.py
 ├── utils
 ├── main.py
 ├── main_linear.py
-└── transformations.py
+├── transformations.py
+└── utilities.py
 ```
 
 ## Models
@@ -84,6 +81,10 @@ or
 python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 --optimizer=lars --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --base_lr=0.02 --final_lr=0 --num_epochs=100
 ```
 
+### Run [BYOL][(https://arxiv.org/abs/2004.11362](https://arxiv.org/abs/2006.07733)) (Bootstrap Your Own Latent)
+
+TODO
+
 ## Results
 
 | **Model** | **Backbone** | **Dataset** | **Acc@1** | **Acc@5** |
@@ -91,12 +92,18 @@ python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 
 | SimSiam   | ResNet-18    | CIFAR-10    | 91.70%    | 99.62%    |
 | SimCLR    | ResNet-18    | CIFAR-10    | 85.35%    | 99.34%    |
 | SupCon    | ResNet-18    | CIFAR-10    |           |           |
+| BYOL      | ResNet-18    | CIFAR-10    |           |           |
+
+## LOGS
+
+- Added BYOL - still to implement scheduler for momentum
+- Implemented base idea of DINO
 
 ## TODO
 
 - Support Distributed Data Parallel (DDP)
 - Support ImageNet
-- Add BYOL, DINO, SWAV, SimCLRv2
+- Add DINO, SWAV, SimCLRv2
 - Add MoCo, MoCov2, MoCov3
 - Add InfoMin, InstDis, PIRL, CPC, CPCv2, CPCv2, LA, CMC
 
