@@ -1,7 +1,6 @@
 import os
 import warnings
 import torch
-import torchvision
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 import argparse
@@ -11,9 +10,8 @@ import pyfiglet
 warnings.simplefilter("ignore")
 
 import networks
-import transformations
-from main import set_model, set_optimizer, set_lr_scheduler
-from utils import calculate_topk_accuracy, AverageMeter
+from utilities import set_model, set_optimizer, set_loader
+from utils import calculate_topk_accuracy, AverageMeter, CosineDecayLR
 from utils import set_deterministic, set_all_seeds
 
 
@@ -46,28 +44,20 @@ def parse_args():
     parser.add_argument('--optimizer', type=str, default='sgd', help='Optimizer for training')
     parser.add_argument('--weight_decay', type=float, default=0, help='Weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='Momentum')
+    parser.add_argument('--num_epochs', type=int, default=100, help='Number of epochs (affects scheduler as well)')
     
     # Evaluation - Scheduler
-    parser.add_argument('--warmup_epochs', type=int, default=10, help='Number of warm-up epochs')
+    parser.add_argument('--warmup_epochs_lr', type=int, default=10, help='Number of warm-up epochs')
     parser.add_argument('--warmup_lr', type=float, default=0, help='Learning rate during warm-up')
     parser.add_argument('--base_lr', type=float, default=30, help='Base learning rate')
     parser.add_argument('--final_lr', type=float, default=0, help='Final learning rate')
-    parser.add_argument('--num_epochs', type=int, default=800, help='Number of epochs (affects scheduler as well)')
     
     args = parser.parse_args()
     
     if args.debug:
-        args.stop_at_epoch = 2
+        args.num_epochs = 5
+        args.warmup_epochs_lr = 2
         
-    if args.warmup_epochs == 0:
-        args.warmup_lr = 0
-        print('No warm-up. Suggesting enabling it for batch_size>256')
-        
-    if args.base_lr == args.final_lr:
-        print('Using linear learning rate')
-    else:
-        print('Using cosine learning rate decay')
-
     print(pyfiglet.figlet_format(args.model_name.upper()))
     set_deterministic(args.seed)
     set_all_seeds(args.seed)
@@ -78,19 +68,6 @@ def parse_args():
     if not os.path.exists(args.logs_dir): os.makedirs(args.logs_dir)
     
     return args
-
-
-def set_loader(args):
-    """ Data loaders for the training and validation on CIFAR 10 """
-    if args.dataset_name == "cifar10":
-        train_dataset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True, download=True, transform=transformations.TRANSFORM_LINEAR)
-        valid_dataset = torchvision.datasets.CIFAR10(root=args.data_dir, train=False, download=True, transform=transformations.TRANSFORM_EVAL)
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
-        valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
-    else:
-        raise NotImplementedError(f'\U0000274C Dataset {args.dataset_name} not implemented')
-    print(f'Initialized loaders for {args.dataset_name.upper()}')
-    return train_loader, valid_loader
 
     
 def train(loader, model, classifier, optimizer, lr_scheduler, epoch, args):
@@ -103,7 +80,7 @@ def train(loader, model, classifier, optimizer, lr_scheduler, epoch, args):
     losses = AverageMeter('loss')
     lrs = AverageMeter('lr')
     
-    pbar = tqdm(loader, ascii = True, desc=f'Epoch {epoch}/{args.num_epochs}')
+    pbar = tqdm(loader, ascii = True, desc=f'Epoch {epoch}/{args.num_epochs} (training)', unit='batches')
     for idx, (images, labels) in enumerate(pbar):
         if args.debug == True and idx > 5: break
         bsz = labels.shape[0]
@@ -116,7 +93,6 @@ def train(loader, model, classifier, optimizer, lr_scheduler, epoch, args):
         loss.backward()
         optimizer.step()
         lr_scheduler.step()
-        
         losses.update(loss.item(), bsz)
         lrs.update(lr_scheduler.get_lr(), bsz)
         
@@ -125,7 +101,7 @@ def train(loader, model, classifier, optimizer, lr_scheduler, epoch, args):
     return losses.avg, lrs.avg
 
 
-def validate(loader, model, classifier, args):
+def validate(loader, model, classifier, epoch, args):
     """ 
     Validation: : Pass images through pre-trained frozen backbone and frozen linear classifier
     """
@@ -136,7 +112,7 @@ def validate(loader, model, classifier, args):
     acc1 = AverageMeter('acc@1')
     acc5 = AverageMeter('acc@5')
     
-    pbar = tqdm(loader, ascii = True, desc='Evaluating')
+    pbar = tqdm(loader, ascii = True, desc=f'Epoch {epoch}/{args.num_epochs} (linear evaluation)', unit='batches')
     for idx, (images, labels) in enumerate(pbar):
         if args.debug == True and idx > 5: break
         bsz = labels.shape[0]
@@ -161,20 +137,18 @@ def main(args):
     """ Self-Supervised Learning: Classifier training """
     
     # Get loaders
-    train_loader, valid_loader = set_loader(args)
+    train_loader, valid_loader = set_loader(args, use_two_crop=False)
     
-    # Get mode: SimCLR, BYOL, SimSiam, SupCon, SWAV, etc.
+    # Get model
     model, feature_size = set_model(args)
     
-    ######################
-    ####### Part 2 #######
-    ######################
-    
+    # Load pretrained SSL model
     try:
         model.load_state_dict(torch.load(args.ckpt_dir + args.model_name + "_final.pth"))
     except:
         raise ValueError(f'\U0000274C Pre-trained model {args.model_name} not found')
     
+    # Get linear classifier
     classifier = networks.LinearClassifier(feature_size, args.num_classes).to(args.device)
     
     # Set optimizer
@@ -185,34 +159,35 @@ def main(args):
                               weight_decay=args.weight_decay,
                               )
     
-     # Set learning rate scheduler
-    lr_scheduler = set_lr_scheduler(optimizer,
-                                args.warmup_epochs,
-                                args.warmup_lr*args.batch_size/256,
-                                args.num_epochs,
-                                args.base_lr*args.batch_size/256,
-                                args.final_lr*args.batch_size/256, 
-                                len(train_loader),
-                                True,
-                                )
+    # Set learning rate scheduler
+    lr_scheduler = CosineDecayLR(optimizer,
+                                 args.warmup_lr*args.batch_size/256, 
+                                 args.base_lr*args.batch_size/256, 
+                                 args.final_lr*args.batch_size/256, 
+                                 args.warmup_epochs_lr, 
+                                 args.num_epochs, 
+                                 len(train_loader),
+                                 )
+    print(f'Cosine decay scheduler initialized (warmup_epochs={args.warmup_epochs_lr}, warmup_lr={args.warmup_lr*args.batch_size/256}, base_lr={args.base_lr*args.batch_size/256}, final_lr={args.final_lr*args.batch_size/256})')
     
-    # Fine-tuning classifier
+    # Epoch training
     top1, top5 = 0, 0
-    print('\nStarting fine-tuning linear classifier on top of frozen pre-trained backbone')
+    print('\nStarting fine-tuning linear classifier on top of frozen pre-trained backbone\n')
     writer = SummaryWriter(log_dir=args.logs_dir)
     for epoch in range(1, args.num_epochs+1):
-        # Train classifier
+        
+        # Linear classifier training
         loss, lr = train(train_loader, model, classifier, optimizer, lr_scheduler, epoch, args)
         writer.add_scalar('train/loss', loss, epoch)
         writer.add_scalar('train/lr', lr, epoch)
-        # Validate classifier
-        loss, acc1, acc5 = validate(valid_loader, model, classifier, args)
+        
+        # Linear classifier evaluation
+        loss, acc1, acc5 = validate(valid_loader, model, classifier, epoch, args)
         writer.add_scalar('valid/loss', loss, epoch)
         writer.add_scalar('valid/acc1', acc1, epoch)
         writer.add_scalar('valid/acc5', acc5, epoch)
         if acc1 > top1:
-            top1 = acc1
-            top5 = acc5
+            top1, top5 = acc1, acc5
             print(f'\U00002705 Found higher Acc@1={top1:.4f}% where Acc@5={top5:.4f}%')
         if epoch % args.save_freq == 0:
             torch.save(classifier.state_dict(), args.ckpt_dir + args.model_name + "_classifier_" + str(epoch) + ".pth")
