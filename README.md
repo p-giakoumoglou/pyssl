@@ -81,7 +81,7 @@ or
 python main_linear.py --model_name=simsiam --backbone=resnet18 --batch_size=256 --optimizer=lars --weight_decay=0 --momentum=0.9 --warmup_epochs=0 --base_lr=0.02 --final_lr=0 --num_epochs=100
 ```
 
-### Run [BYOL][(https://arxiv.org/abs/2006.07733) (Bootstrap Your Own Latent)
+### Run [BYOL](https://arxiv.org/abs/2006.07733)(Bootstrap Your Own Latent)
 
 TODO
 
