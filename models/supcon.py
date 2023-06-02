@@ -82,11 +82,13 @@ class Projector(nn.Module):
 
 class SupCon(nn.Module):
     """ Contrastive-based Self-Supervised Learning: SupCon"""
-    def __init__(self, backbone, feature_size):
+    def __init__(self, backbone, feature_size, temperature=0.07):
         super().__init__()
         
-        assert backbone is not None and feature_size>0
+        assert backbone is not None and feature_size>0, "SupCon `backbone` and `feature_size` error"
+        assert temperature >0 and temperature <=1, "SupCon `temperature` must be in [0,1]"
         
+        self.temperature = temperature
         self.backbone = backbone
         self.projector = Projector(feature_size, hidden_dim=feature_size, out_dim=128)
         self.encoder = nn.Sequential(self.backbone, self.projector)
@@ -95,7 +97,7 @@ class SupCon(nn.Module):
         z1 = self.encoder(x1)
         z2 = self.encoder(x2)
         z = torch.cat([z1.unsqueeze(1), z2.unsqueeze(1)], dim=1)
-        loss = SupConLoss(z, labels)
+        loss = SupConLoss(z, labels, temperature=self.temperature)
         return loss
 
 

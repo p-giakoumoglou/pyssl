@@ -75,7 +75,7 @@ class SimSiam(nn.Module):
     def __init__(self, backbone, feature_size):
         super().__init__()
         
-        assert backbone is not None and feature_size>0
+        assert backbone is not None and feature_size>0, "SimSiam `backbone` and `feature_size` error"
         
         self.backbone = backbone
         self.projector = Projector(feature_size, hidden_dim=2048, out_dim=2048)

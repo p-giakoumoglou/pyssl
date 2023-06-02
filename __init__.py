@@ -5,4 +5,4 @@ from .supcon import SupCon
 from .swav import SWAV
 from .dino import DINO
 
-__all__ = ['SimCLR', 'SimSiam', 'SupCon']
+__all__ = ['SimCLR', 'SimSiam', 'SupCon', 'BYOL']

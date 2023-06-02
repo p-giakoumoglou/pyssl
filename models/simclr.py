@@ -58,10 +58,13 @@ class Projector(nn.Module):
 
 class SimCLR(nn.Module):
     """ Contrastive-based Self-Supervised Learning: SimCLR"""
-    def __init__(self, backbone, feature_size):
+    def __init__(self, backbone, feature_size, temperature=0.5):
         super().__init__()
         
-        assert backbone is not None and feature_size>0
+        assert backbone is not None and feature_size>0, "SimCLR `backbone` and `feature_size` error"
+        assert temperature >0 and temperature <=1, "SimCLR `temperature` must be in [0,1]"
+        
+        self.temperature = temperature
         
         self.backbone = backbone
         self.projector = Projector(feature_size, hidden_dim=feature_size, out_dim=128)
@@ -70,7 +73,7 @@ class SimCLR(nn.Module):
     def forward(self, x1, x2):
         z1 = self.encoder(x1)
         z2 = self.encoder(x2)
-        loss = NT_XentLoss(z1, z2)
+        loss = NT_XentLoss(z1, z2, self.temperature)
         return loss
 
 

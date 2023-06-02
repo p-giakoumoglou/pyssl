@@ -55,10 +55,13 @@ class Projection(nn.Module):
 
 class DINO(nn.Module):
     """ Distillation-based Self-Supervised Learning: BYOL """
-    def __init__(self, backbone, feature_size, temp_s, temp_t, m):
+    def __init__(self, backbone, feature_size, temp_s=0.5, temp_t=0.5, m=0.5):
         super().__init__()
         
-        assert backbone is not None and feature_size>0
+        assert backbone is not None and feature_size>0, "DINO `backbone` and `feature_size` error"
+        assert temp_s <=1 and temp_s >0, "BYOL `temp_s` must be in [0,1]"
+        assert temp_t <=1 and temp_t >0, "BYOL `temp_t` must be in [0,1]"
+        assert m <=1 and m >0, "BYOL `m` must be in [0,1]"
         
         self.temp_s = temp_s
         self.temp_t = temp_t
@@ -69,7 +72,8 @@ class DINO(nn.Module):
         self.projector = Projection(feature_size, hidden_dim=2048, out_dim=256)
         
         self.student = nn.Sequential(self.backbone, self.projector)
-        self.teacher = copy.deepcopy(self.student)
+        self.teacher = copy.deepcopy(self.student) 
+        self._init_teacher()
         
     def forward(self, x1, x2):
         z1_s, z2_s = self.student(x1), self.student(x2)
@@ -82,6 +86,11 @@ class DINO(nn.Module):
         self.C = self.m*self.C + (1-self.m)*torch.cat([z1_t, z2_t]).mean(dim=0)
             
         return loss
+    
+    def _init_teacher(self):
+        for param_q, param_k in zip(self.student.parameters(), self.teacher.parameters()):
+            param_k.data.copy_(param_q.data)  # initialize
+            param_k.requires_grad = False     # not update by gradient
 
 
 if __name__ == '__main__':
