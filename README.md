@@ -96,6 +96,7 @@ TODO
 
 ## LOGS
 
+02/06/2023
 - Added BYOL - still to implement scheduler for momentum
 - Implemented base idea of DINO
 
