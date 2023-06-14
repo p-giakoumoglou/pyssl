@@ -1,6 +1,6 @@
 # Self-Supervised Learning for Visual Data
 
-![pyssl](https://github.com/giakou4/pyssl/assets/57758089/fc4ac15b-46b4-4408-9051-1b34d11b9fe2)
+![pyssl](https://github.com/giakou4/pyssl/assets/57758089/7a732e3e-1898-4543-8fd3-c5739d59c8df)
 
 ## Dependencies
 
