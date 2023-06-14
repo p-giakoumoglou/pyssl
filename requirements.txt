@@ -1,8 +1,4 @@
 torch
 torchvision
-numpy
-matplotlib
-sklearn
-tqdm
 Pillow
-pyfiglet
+
