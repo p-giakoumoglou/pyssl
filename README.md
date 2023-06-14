@@ -1,6 +1,6 @@
 # Self-Supervised Learning for Visual Data
 
-![ViSSL](https://github.com/giakou4/ssl/assets/57758089/15eec7ab-759f-40ed-8dc8-d69cc50f0d24)
+![pyssl](https://github.com/giakou4/pyssl/assets/57758089/fc4ac15b-46b4-4408-9051-1b34d11b9fe2)
 
 
 A PyTorch implementation for the various Self-Supervised Learning (SSL) models.
