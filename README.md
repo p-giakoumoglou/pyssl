@@ -123,14 +123,14 @@ The models can directly output the loss, i.e., ```loss = model.forward(x)``` so 
 In Bibtex format:
 
 ```bibtex
-@misc{pyssl2023giakoumoglou,  
-     author = {Nikolaos Giakoumoglou},  
-     title = {PySSL: A PyTorch implementation of Self-Supervised Learning (SSL) methods},  
-     year = {2023},  
-     publisher = {GitHub},  
-     journal = {GitHub repository},  
-     howpublished = {\url{https://github.com/giakou4/pyssl}},  
-   }  
+@misc{pyssl2023giakoumoglou,
+   author = {Nikolaos Giakoumoglou and Paschalis Giakoumoglou},
+   title = {PySSL: A PyTorch implementation of Self-Supervised Learning (SSL) methods},
+   year = {2023},
+   publisher = {GitHub},
+   journal = {GitHub repository},
+   howpublished = {\url{https://github.com/giakou4/pyssl}},
+}
 ```
 
 ## 5. Support
