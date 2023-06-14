@@ -36,19 +36,36 @@ pip install -r requirements.txt
 
 ### 2.1 Barlow Twins
 
+Barlow Twins is a self-supervised learning method that aims to learn representations by making the outputs of a neural network to be as similar as possible for two augmented views of the same image, while reducing the redundancy between the output components.
+
 ### 2.2 BYOL
+
+BYOL (Bootstrap Your Own Latent) is an SSL method that learns representations by predicting one view of an input from another view of the same input, without the necessity for negative pairs which is the case for most contrastive learning methods.
 
 ### 2.3 DINO
 
+DINO (Distillation of Self-supervised Networks) is a method that trains a student network using the outputs of a teacher network, where the teacher network is an exponentially moving average of the student network. The key idea is to use distillation loss to capture information from different viewpoints of the same image.
+
 ### 2.4 MOCO, MOCOv2, MOCOv3
+
+MOCO (Momentum Contrast) series are methods that utilize a dynamic dictionary implemented with a queue and a moving-averaged encoder. The methods aim to maximize similarity between a query and its positive key and minimize similarity between the query and negative keys (v2 and v3 are updated versions with improvements over the original).
 
 ### 2.5 SimCLR, SimCLRv2
 
+SimCLR (Simple Framework for Contrastive Learning of Visual Representations) is a method that utilizes a contrastive loss function to distinguish between similar and dissimilar images. The v2 version introduces a simple method for augmenting the data sample with a learnable nonlinear transformation.
+
 ### 2.6 SimSiam
+
+SimSiam (Simple Siamese) aims to learn representations by predicting one view of an input from another view of the same input, similar to BYOL. However, unlike BYOL, SimSiam does not use batch normalization in the prediction MLP, and does not require the use of a momentum encoder or moving average.
 
 ### 2.7 SupCon
 
+SupCon (Supervised Contrastive Learning) is a method that uses a contrastive loss function but also makes use of labels, if available, to further refine the learning of representations by encouraging dissimilarities between representations of different classes.
+
 ### 2.8 SwAV
+
+SwAV (Swapping Assignments between multiple Views of the same image) is a clustering-based method which learns representations by swapping the cluster assignments between different views of the same image, and then minimizing the difference between the swapped assignments and the original assignments.
+
 
 ## 3. Citation
 
