@@ -35,6 +35,7 @@ pip install -r requirements.txt
 ## 2. Methods:
 
 For the following section, assume a backbone, e.g., a ResNet-50, and an input image of size 224 in a batch of 4, i.e.,
+
 ```python
 import torchvision
 
@@ -70,7 +71,7 @@ DINO (Distillation of Self-supervised Networks) is a method that trains a studen
 model = DINO(backbone, feature_size, projection_dim=256, hidden_dim=2048, bottleneck_dim=256, temp_s=0.1, temp_t=0.5, m=0.5, lamda=0.996, num_crops=6)
 ```
 
-### 2.4 MOCO, MOCOv2, MOCOv3
+### 2.4 MOCO, MoCov2, MoCov3
 
 MOCO (Momentum Contrast) series are methods that utilize a dynamic dictionary implemented with a queue and a moving-averaged encoder. The methods aim to maximize similarity between a query and its positive key and minimize similarity between the query and negative keys (v2 and v3 are updated versions with improvements over the original).
 
