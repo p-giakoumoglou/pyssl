@@ -1,8 +1,6 @@
-# Self-Supervised Learning for Visual Data
+# PySSL: A PyTorch implementation of Self-Supervised Learning (SSL) models
 
 ![pyssl](https://github.com/giakou4/pyssl/assets/57758089/53a5ee2b-4417-4f8e-ae3a-fba119650c1a)
-
-A PyTorch implementation of Self-Supervised Learning (SSL) models
 
 ## Dependencies
 
