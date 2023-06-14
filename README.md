@@ -2,7 +2,7 @@
 
 # PySSL
 
-A PyTorch implementation of Self-Supervised Learning (SSL) methods.
+A PyTorch implementation of Self-Supervised Learning (SSL) methods
 
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/giakou4/pyssl/LICENSE)
@@ -31,3 +31,38 @@ Once the environment is activated, install the required packages from the "requi
 ```shell
 pip install -r requirements.txt
 ```
+
+## Methods:
+
+### 1 Barlow Twins
+
+### 2 BYOL
+
+### 3 DINO
+
+### 4 MOCO, MOCOv2, MOCOv3
+
+### 5 SimCLR, SimCLRv2
+
+### 6 SimSiam
+
+### 7 SupCon
+
+### 8 SwAV
+
+## Citation
+In Bibtex format:
+```bibtex
+@misc{pyssl2023giakoumoglou,  
+     author = {Nikolaos Giakoumoglou},  
+     title = {PySSL: A PyTorch implementation of Self-Supervised Learning (SSL) methods},  
+     year = {2023},  
+     publisher = {GitHub},  
+     journal = {GitHub repository},  
+     howpublished = {\url{https://github.com/giakou4/pyssl}},  
+   }  
+```
+
+## Support
+Reach out to me:
+- [giakou4's email](mailto:giakou4@gmail.com "giakou4@gmail.com")
