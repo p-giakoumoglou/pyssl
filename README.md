@@ -12,7 +12,7 @@ A PyTorch implementation of Self-Supervised Learning (SSL) methods
 ![size](https://img.shields.io/github/languages/code-size/giakou4/pyssl)
 
 
-## Prerequisites
+## 1. Prerequisites
 
 Before proceeding, create a [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) environment:
 
@@ -32,26 +32,28 @@ Once the environment is activated, install the required packages from the "requi
 pip install -r requirements.txt
 ```
 
-## Methods:
+## 2. Methods:
 
-### 1 Barlow Twins
+### 2.1 Barlow Twins
 
-### 2 BYOL
+### 2.2 BYOL
 
-### 3 DINO
+### 2.3 DINO
 
-### 4 MOCO, MOCOv2, MOCOv3
+### 2.4 MOCO, MOCOv2, MOCOv3
 
-### 5 SimCLR, SimCLRv2
+### 2.5 SimCLR, SimCLRv2
 
-### 6 SimSiam
+### 2.6 SimSiam
 
-### 7 SupCon
+### 2.7 SupCon
 
-### 8 SwAV
+### 2.8 SwAV
 
-## Citation
+## 3. Citation
+
 In Bibtex format:
+
 ```bibtex
 @misc{pyssl2023giakoumoglou,  
      author = {Nikolaos Giakoumoglou},  
@@ -63,6 +65,6 @@ In Bibtex format:
    }  
 ```
 
-## Support
+## 4. Support
 Reach out to me:
 - [giakou4's email](mailto:giakou4@gmail.com "giakou4@gmail.com")
