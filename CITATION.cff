@@ -1,0 +1,10 @@
+abstract: A PyTorch implementation of Self-Supervised Learning (SSL) methods
+authors:
+  - family-names: Giakoumoglou
+    given-names: Nikolaos
+date-released: "2023-13-6"
+license: MIT
+message: If you use this software, please cite it using these metadata.
+repository-code: "https://github.com/giakou4/pyssl"
+title: PySSL
+version: 0.0.1
