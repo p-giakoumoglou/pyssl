@@ -113,7 +113,11 @@ SwAV (Swapping Assignments between multiple Views of the same image) is a cluste
 model = SwAV(backbone, feature_size, projection_dim=128, hidden_dim=2048, temperature=0.1, epsilon=0.05, sinkhorn_iterations=3, num_prototypes=3000, queue_length=64, use_the_queue=True, num_crops=6)
 ```
 
-## 3. Citation
+## 3. Training
+
+The models can directly output the loss, i.e., ```loss = model.forward(x)``` so as to integrate smoothly with the training loop.
+
+## 4. Citation
 
 In Bibtex format:
 
@@ -128,6 +132,6 @@ In Bibtex format:
    }  
 ```
 
-## 4. Support
+## 5. Support
 Reach out to me:
 - [giakou4's email](mailto:giakou4@gmail.com "giakou4@gmail.com")
