@@ -16,8 +16,8 @@ A PyTorch implementation of Self-Supervised Learning (SSL) models
 If you don't have python environment:
 
 ```
-conda create -n vissl python=3.7
-conda activate vissl
+conda create -n pyssl python=3.7
+conda activate pyssl
 ```
 
 Then install the required packages:
