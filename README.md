@@ -162,7 +162,7 @@ for epoch in range(10):
 
 ## 4. Inference
 
-For inference, call ```model.eval()```, and then use either ```model.encoder(x)``` to get the projection vector (backbone and projector's representations), or use ```model.backbone(x)``` to get the feature vector (backbone representations). After calling ```model.eval()```, the model automatically assigns the ```encoder``` to the corresponding encoder of each method (e.g., student network for BYOL or queue encoder for MoCo series).
+For inference, use either ```model.encoder(x)``` to get the projection vector (backbone and projector's representations), or use ```model.backbone(x)``` to get the feature vector (backbone representations). The model automatically assigns the ```encoder``` to the corresponding encoder of each method (e.g., student network for BYOL or queue encoder for MoCo series).
 
 ## 5. Citation
 
