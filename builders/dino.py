@@ -10,7 +10,6 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 from PIL import Image
 import copy
-from utils import Solarization
 
 
 __all__ = ['DINO']
@@ -56,7 +55,7 @@ class DINO(nn.Module):
                 T.RandomApply([T.ColorJitter(0.4, 0.4, 0.2, 0.1)], p=0.8),
                 T.RandomGrayscale(p=0.2),
                 T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
-                T.RandomApply([Solarization(p=1.0)], p=0.2),
+                T.RandomSolarize(threshold=128, p=0.2),
                 T.Normalize(mean=mean, std=std),
                 ])
         self.augment_local = T.Compose([

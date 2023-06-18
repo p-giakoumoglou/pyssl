@@ -8,7 +8,6 @@ import torch
 from torch import nn
 import torchvision.transforms as T
 from PIL import Image
-from utils import Solarization
 
 
 __all__ = ['BarlowTwins']
@@ -37,7 +36,7 @@ class BarlowTwins(nn.Module):
                 T.RandomApply([T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)], p=0.8),
                 T.RandomGrayscale(p=0.2),
                 T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
-                Solarization(p=0.0),
+                T.RandomSolarize(threshold=128, p=0.0),
                 T.Normalize(mean=mean, std=std),
                 ])
         self.augment_prime = T.Compose([
@@ -46,7 +45,7 @@ class BarlowTwins(nn.Module):
                 T.RandomApply([T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)], p=0.8),
                 T.RandomGrayscale(p=0.2),
                 T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
-                Solarization(p=0.2),
+                T.RandomSolarize(threshold=128, p=0.2),
                 T.Normalize(mean=mean, std=std),
                 ])
         

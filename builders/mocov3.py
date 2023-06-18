@@ -10,7 +10,6 @@ from torch import nn
 import torchvision.transforms as T
 import copy
 from PIL import Image
-from utils import Solarization
 
 
 __all__ = ['MoCoV3']
@@ -51,7 +50,7 @@ class MoCoV3(nn.Module):
                 T.RandomApply([T.ColorJitter(0.4, 0.4, 0.2, 0.1)], p=0.8),
                 T.RandomGrayscale(p=0.2),
                 T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
-                T.RandomApply([Solarization(p=1.0)], p=0.2),
+                T.RandomSolarize(threshold=128, p=0.2),
                 T.Normalize(mean=mean, std=std)
                 ])
         
