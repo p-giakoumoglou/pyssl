@@ -2,8 +2,8 @@ from .barlow_twins import BarlowTwins
 from .byol import BYOL
 from .dino import DINO
 from .moco import MoCo
-from .mocov2 import MoCov2
-from .mocov3 import MoCov3
+from .mocov2 import MoCoV2
+from .mocov3 import MoCoV3
 from .simclr import SimCLR
 from .simsiam import SimSiam
 from .simclrv2 import SimCLRv2
@@ -16,26 +16,11 @@ __all__ = [
         'BYOL',
         'DINO',
         'MoCo',
-        'MoCov2',
-        'MoCov3',
+        'MoCoV2',
+        'MoCoV3',
         'SimCLR',
         'SimCLRv2',
         'SimSiam',
         'SupCon',
         'SwAV',
         ]
-
-
-model_dict = {
-    'barlowtwins': BarlowTwins,
-    'byol': BYOL,
-    'dino': DINO,
-    'moco': MoCo,
-    'mocov2': MoCov2,
-    'mocov3': MoCov3,
-    'simclr': SimCLR,
-    'simclrv2': SimCLRv2,
-    'simsiam': SimSiam,
-    'supcon': SupCon,
-    'swav': SwAV,
-}

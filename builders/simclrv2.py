@@ -1,17 +1,8 @@
-"""
- ____  _            ____ _     ____          ____  
-/ ___|(_)_ __ ___  / ___| |   |  _ \  __   _|___ \ 
-\___ \| | '_ ` _ \| |   | |   | |_) | \ \ / / __) |
- ___) | | | | | | | |___| |___|  _ <   \ V / / __/ 
-|____/|_|_| |_| |_|\____|_____|_| \_\   \_/ |_____|
-
-SimCLR: A Simple Framework for Contrastive Learning of Visual Representations
-Link: https://arxiv.org/abs/2002.05709
-Implementation: https://github.com/google-research/simclr
-
-TODO
-    - memory bank (with a moving average of weights for stabilization) 
-"""
+# Copyright (C) 2023. All rights reserved.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 import torch
 from torch import nn
@@ -20,6 +11,45 @@ import torchvision.transforms as T
 
 
 __all__ = ['SimCLRv2']
+
+
+
+class SimCLRv2(nn.Module):
+    """ 
+    SimCLR: A Simple Framework for Contrastive Learning of Visual Representations
+    Link: https://arxiv.org/abs/2002.05709
+    Implementation: https://github.com/google-research/simclr
+    """
+    def __init__(self, backbone, feature_size, projection_dim=128, temperature=0.5,
+                 image_size=224, mean=(0.5,), std=(0.229, 0.224, 0.225)):
+        super().__init__()
+        self.projection_dim = projection_dim
+        self.temperature = temperature
+        self.image_size = image_size
+        self.mean = mean
+        self.std = std
+        self.backbone = backbone
+        self.projector = Projector(feature_size, hidden_dim=feature_size, out_dim=projection_dim)
+        self.encoder = nn.Sequential(self.backbone, self.projector)
+        self.augment = T.Compose([
+                T.RandomResizedCrop(image_size, scale=(0.2, 1.0)),
+                T.RandomHorizontalFlip(),
+                T.RandomApply([T.ColorJitter(0.8,0.8,0.8,0.2)], p=0.8),
+                T.RandomGrayscale(p=0.2),
+                T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
+                T.Normalize(mean=mean, std=std),
+                ])
+        
+    def forward(self, x):
+        x1, x2 = self.augment(x), self.augment(x)
+        z1, z2 = self.encoder(x1), self.encoder(x2)
+        loss = nt_xent_loss(z1, z2, self.temperature)
+        return loss
+    
+    @torch.no_grad()
+    def eval(self):
+        super().eval()
+        self.backbone = nn.Sequential(self.backbone, self.projector.layer1)
 
 
 def nt_xent_loss(z1, z2, temperature=0.5):
@@ -67,47 +97,6 @@ class Projector(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         return x 
-
-
-class SimCLRv2(nn.Module):
-    """ Contrastive-based Self-Supervised Learning: SimCLR v2"""
-    def __init__(self, backbone, feature_size, projection_dim=128, temperature=0.5,
-                 image_size=224, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
-        super().__init__()
-        
-        # Parameters
-        self.projection_dim = projection_dim
-        self.temperature = temperature
-        
-        # Dataset
-        self.image_size = image_size
-        self.mean = mean
-        self.std = std
-        
-        # Encoder
-        self.backbone = backbone
-        self.projector = Projector(feature_size, hidden_dim=feature_size, out_dim=projection_dim)
-        self.encoder = nn.Sequential(self.backbone, self.projector)
-        
-        # Augmentation
-        self.augment = T.Compose([
-                T.RandomResizedCrop(image_size, scale=(0.2, 1.0)),
-                T.RandomHorizontalFlip(),
-                T.RandomApply([T.ColorJitter(0.8,0.8,0.8,0.2)], p=0.8),
-                T.RandomGrayscale(p=0.2),
-                T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
-                T.Normalize(mean=mean, std=std),
-                ])
-    def forward(self, x):
-        x1, x2 = self.augment(x), self.augment(x)
-        z1, z2 = self.encoder(x1), self.encoder(x2)
-        loss = nt_xent_loss(z1, z2, self.temperature)
-        return loss
-    
-    @torch.no_grad()
-    def eval(self):
-        super().eval()
-        self.backbone = nn.Sequential(self.backbone, self.projector.layer1)
 
 
 if __name__ == '__main__':

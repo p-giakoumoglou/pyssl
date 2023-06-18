@@ -1,14 +1,8 @@
-"""
- ____               ____            
-/ ___| _   _ _ __  / ___|___  _ __  
-\___ \| | | | '_ \| |   / _ \| '_ \ 
- ___) | |_| | |_) | |__| (_) | | | |
-|____/ \__,_| .__/ \____\___/|_| |_|
-
-SupCon: Supervised Contrastive Learning
-Link: https://arxiv.org/abs/2004.11362
-Implementation: https://github.com/HobbitLong/SupContrast
-"""
+# Copyright (C) 2023. All rights reserved.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 import torch
 from torch import nn
@@ -16,6 +10,39 @@ import torchvision.transforms as T
 
 
 __all__ = ['SupCon']
+
+
+class SupCon(nn.Module):
+    """
+    SupCon: Supervised Contrastive Learning
+    Link: https://arxiv.org/abs/2004.11362
+    Implementation: https://github.com/HobbitLong/SupContrast
+    """
+    def __init__(self, backbone, feature_size, projection_dim=128, temperature=0.07,
+                 image_size=224, mean=(0.5,), std=(0.229, 0.224, 0.225)):
+        super().__init__()
+        self.projection_dim = projection_dim
+        self.temperature = temperature
+        self.image_size = image_size
+        self.mean = mean
+        self.std = std
+        self.backbone = backbone
+        self.projector = Projector(feature_size, hidden_dim=feature_size, out_dim=projection_dim)
+        self.encoder = nn.Sequential(self.backbone, self.projector)
+        self.augment = T.Compose([
+                T.RandomResizedCrop(image_size, scale=(0.2, 1.)),
+                T.RandomHorizontalFlip(),
+                T.RandomApply([T.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
+                T.RandomGrayscale(p=0.2),
+                T.Normalize(mean=mean, std=std)
+                ])
+        
+    def forward(self, x, y):
+        x1, x2 = self.augment(x), self.augment(x)
+        z1, z2 = self.encoder(x1), self.encoder(x2)
+        z = torch.cat([z1.unsqueeze(1), z2.unsqueeze(1)], dim=1)
+        loss = sup_con_loss(z, y, temperature=self.temperature)
+        return loss
 
 
 def sup_con_loss(features, labels=None, mask=None, temperature=0.07, contrast_mode='all', base_temperature=0.07):
@@ -80,40 +107,8 @@ class Projector(nn.Module):
     def forward(self, x):
         x = self.layer1(x)
         return x 
-
-
-class SupCon(nn.Module):
-    """ Contrastive-based Self-Supervised Learning: SupCon"""
-    def __init__(self, backbone, feature_size, projection_dim=128, temperature=0.07,
-                 image_size=224, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
-        super().__init__()
-        
-        # Parameters
-        self.projection_dim = projection_dim
-        self.temperature = temperature
-        
-        # Encoder
-        self.backbone = backbone
-        self.projector = Projector(feature_size, hidden_dim=feature_size, out_dim=projection_dim)
-        self.encoder = nn.Sequential(self.backbone, self.projector)
-        
-        # Augmentation
-        self.augment = T.Compose([
-                T.RandomResizedCrop(image_size, scale=(0.2, 1.)),
-                T.RandomHorizontalFlip(),
-                T.RandomApply([T.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
-                T.RandomGrayscale(p=0.2),
-                T.Normalize(mean=mean, std=std)
-                ])
-        
-    def forward(self, x, y):
-        x1, x2 = self.augment(x), self.augment(x)
-        z1, z2 = self.encoder(x1), self.encoder(x2)
-        z = torch.cat([z1.unsqueeze(1), z2.unsqueeze(1)], dim=1)
-        loss = sup_con_loss(z, y, temperature=self.temperature)
-        return loss
-
-
+    
+    
 if __name__ == '__main__':
     import torchvision
     backbone = torchvision.models.resnet50(pretrained=False)

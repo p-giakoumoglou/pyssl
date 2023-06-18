@@ -116,9 +116,53 @@ model = SwAV(backbone, feature_size, projection_dim=128, hidden_dim=2048, temper
 
 ## 3. Training
 
-The models can directly output the loss, i.e., ```loss = model.forward(x)``` so as to integrate smoothly with the training loop.
+The models can directly output the loss, i.e., ```loss = model(x)``` or ```loss = model.forward(x)``` so as to integrate smoothly with the training loop (see main.py).
 
-## 4. Citation
+```python
+# get device
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+# initialize backbone (resnet50)
+backbone = torchvision.models.resnet50(pretrained=False)
+feature_size = backbone.fc.in_features
+backbone.fc = torch.nn.Identity()
+
+# initialize ssl method
+model = builders.SimCLR(backbone, feature_size, image_size=32)
+model = model.to(device)
+    
+# load fake CIFAR-like dataset
+dataset = datasets.FakeData(2000, (3, 32, 32), 10, transforms.ToTensor())
+loader = torch.utils.data.DataLoader(dataset, batch_size=128, shuffle=True, num_workers=2)
+
+# set optimizer
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# switch to train mode
+model.train()
+
+# epoch training
+for epoch in range(10):  # loop over the dataset multiple times
+    for i, (images, _) in enumerate(loader):
+        images = images.to(device)
+
+        # zero the parameter gradients
+        model.zero_grad()
+
+        # compute loss
+        loss = model(images)
+        print('[Epoch %2d, Batch %2d] loss: %.3f' % (epoch + 1, i + 1, loss.item()))
+        
+        # compute gradient and do SGD step
+        loss.backward()
+        optimizer.step()
+```
+
+## 4. Inference
+
+For inference, use either ```model.encoder(x)``` to get the projection vector (backbone and projector's representations), or use ```model.backbone(x)``` to get the feature vector (backbone representations).
+
+## 5. Citation
 
 In Bibtex format:
 

@@ -1,14 +1,8 @@
-"""
- __  __        ____      
-|  \/  | ___  / ___|___  
-| |\/| |/ _ \| |   / _ \ 
-| |  | | (_) | |__| (_) |
-|_|  |_|\___/ \____\___/ 
-
-MoCo: Momentum Contrast
-Link: https://arxiv.org/abs/1911.05722
-Implementation: https://github.com/facebookresearch/moco
-"""
+# Copyright (C) 2023. All rights reserved.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 import torch
 from torch import nn
@@ -20,45 +14,31 @@ import copy
 __all__ = ['MoCo']
 
 
-def contrastive_loss(q, k, queue, temperature):
-    l_pos = torch.einsum("nc,nc->n", [q, k]).unsqueeze(-1)
-    l_neg = torch.einsum("nc,ck->nk", [q, queue.clone().detach()])
-    logits = torch.cat([l_pos, l_neg], dim=1)
-    logits /= temperature
-    labels = torch.zeros(logits.shape[0], dtype=torch.long).to(q.device)
-    loss = F.cross_entropy(logits, labels)
-    return loss
-
-
 class MoCo(nn.Module):
-    """ Contrastive-based Self-Supervised Learning: MoCo"""
+    """ 
+    MoCo: Momentum Contrast
+    Link: https://arxiv.org/abs/1911.05722
+    Implementation: https://github.com/facebookresearch/moco
+    """
     def __init__(self, backbone, feature_size, projection_dim=128, K=65536, m=0.999, temperature=0.07,
-                 image_size=224, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+                 image_size=224, mean=(0.5,), std=(0.229, 0.224, 0.225)):
         super().__init__()
-        
-        # Parameters
         self.projection_dim = projection_dim
         self.K = K
         self.m = m
         self.temperature = temperature
         self.backbone = backbone
         self.projector = nn.Linear(feature_size, projection_dim)
-        
-        # Encoder - queue
+        self.image_size = image_size
+        self.mean = mean
+        self.std = std
         self.encoder_q  = nn.Sequential(self.backbone, self.projector)
-        
-        # Encoder - key
         self.encoder_k = copy.deepcopy(self.encoder_q)
         self._init_encoder_k()
-        
-        # Queue
         self.register_buffer("queue", torch.randn(projection_dim, K))
         self.queue = nn.functional.normalize(self.queue, dim=0)
         self.register_buffer("queue_ptr", torch.zeros(1, dtype=torch.long))
-        
         self.encoder = copy.deepcopy(self.encoder_q)
-        
-        # Augmentation
         self.augment = T.Compose([
                 T.RandomResizedCrop(image_size, scale=(0.2, 1.0)),
                 T.RandomGrayscale(p=0.2),
@@ -71,16 +51,13 @@ class MoCo(nn.Module):
         x_q, x_k = self.augment(x), self.augment(x)
         q = self.encoder_q(x_q)
         q = nn.functional.normalize(q, dim=1)
-
         with torch.no_grad():
             self._momentum_update_encoder_k()
             x_k, idx_unshuffle = self._batch_shuffle_single_gpu(x_k)
             k = self.encoder_k(x_k) 
             k = nn.functional.normalize(k, dim=1)
             k = self._batch_unshuffle_single_gpu(k, idx_unshuffle)
-
         loss = contrastive_loss(q, k, self.queue, self.temperature)
-        
         self._dequeue_and_enqueue(k)
         return loss
     
@@ -118,6 +95,16 @@ class MoCo(nn.Module):
     @torch.no_grad()
     def _batch_unshuffle_single_gpu(self, x, idx_unshuffle):
         return x[idx_unshuffle]
+
+
+def contrastive_loss(q, k, queue, temperature):
+    l_pos = torch.einsum("nc,nc->n", [q, k]).unsqueeze(-1)
+    l_neg = torch.einsum("nc,ck->nk", [q, queue.clone().detach()])
+    logits = torch.cat([l_pos, l_neg], dim=1)
+    logits /= temperature
+    labels = torch.zeros(logits.shape[0], dtype=torch.long).to(q.device)
+    loss = F.cross_entropy(logits, labels)
+    return loss
 
 
 if __name__ == '__main__':

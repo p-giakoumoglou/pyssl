@@ -1,14 +1,8 @@
-"""
- ____ ___ _   _  ___  
-|  _ \_ _| \ | |/ _ \ 
-| | | | ||  \| | | | |
-| |_| | || |\  | |_| |
-|____/___|_| \_|\___/ 
-
-DINO: Emerging Properties in Self-Supervised Vision Transformers
-Link: https://arxiv.org/abs/2104.14294
-Implementation: https://github.com/facebookresearch/dino
-"""
+# Copyright (C) 2023. All rights reserved.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 import torch
 from torch import nn
@@ -22,57 +16,15 @@ from utils import Solarization
 __all__ = ['DINO']
 
 
-def cross_entropy_loss(z_t, z_s, temp_s, temp_t, center):
-    z_t = z_t.detach() # stop gradient
-    z_s = z_s / temp_s
-    z_t = F.softmax((z_t - center) / temp_t, dim=1) # center + sharpen
-    return - (z_t * F.log_softmax(z_s, dim=1)).sum(dim=1).mean()
-    
-
-class Head(nn.Module):
-    """ Projection Head for DINO """
-    def __init__(self, in_dim, hidden_dim=2048, bottleneck_dim=256, out_dim=256, ):
-        super().__init__()
-
-        self.layer1 = nn.Sequential(
-            nn.Linear(in_dim, hidden_dim),
-            nn.GELU(),
-        )
-        self.layer2 = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.GELU(),
-        )
-        self.layer3 = nn.Sequential(
-            nn.Linear(hidden_dim, bottleneck_dim),
-        )
-        self.apply(self._init_weights)
-        
-        self.last_layer = nn.utils.weight_norm(nn.Linear(bottleneck_dim, out_dim, bias=False))
-        self.last_layer.weight_g.data.fill_(1)
-        self.last_layer.weight_g.requires_grad = False
-        
-    def forward(self, x):
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = nn.functional.normalize(x, dim=-1, p=2)
-        x = self.last_layer(x)
-        return x 
-    
-    def _init_weights(self, m):
-        if isinstance(m, nn.Linear):
-            torch.nn.init.trunc_normal_(m.weight, std=0.02)
-            if isinstance(m, nn.Linear) and m.bias is not None:
-                nn.init.constant_(m.bias, 0)
-
-
 class DINO(nn.Module):
-    """ Distillation-based Self-Supervised Learning: BYOL """
+    """ 
+    DINO: Emerging Properties in Self-Supervised Vision Transformers
+    Link: https://arxiv.org/abs/2104.14294
+    Implementation: https://github.com/facebookresearch/dino
+    """
     def __init__(self, backbone, feature_size, projection_dim=256, hidden_dim=2048, bottleneck_dim=256, temp_s=0.1, temp_t=0.5, m=0.5, lamda=0.996, num_crops=6,
-                 image_size=224, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+                 image_size=224, mean=(0.5,), std=(0.229, 0.224, 0.225)):
         super().__init__()
-               
-        # Parameters
         self.projection_dim = projection_dim
         self.temp_s = temp_s
         self.temp_t = temp_t
@@ -80,19 +32,15 @@ class DINO(nn.Module):
         self.m = m
         self.lamda = lamda # EMA update
         self.backbone = backbone   
-        
-        # Student
+        self.image_size = image_size
+        self.mean = mean
+        self.std = std
         self.head_student = Head(feature_size, hidden_dim=hidden_dim, bottleneck_dim=bottleneck_dim, out_dim=projection_dim)
         self.student = nn.Sequential(self.backbone, self.head_student)
-        
-        # Teacher
         self.head_teacher = Head(feature_size, hidden_dim=hidden_dim, bottleneck_dim=bottleneck_dim, out_dim=projection_dim)
         self.teacher = nn.Sequential(copy.deepcopy(backbone), self.head_teacher)
         self._init_teacher()
-        
         self.encoder = nn.Sequential(self.backbone, self.head_student)
-        
-        # Augmentation
         self.num_crops = num_crops
         self.augment_global1 = T.Compose([
                 T.RandomResizedCrop(image_size, scale=(0.04, 1.0), interpolation=Image.BICUBIC),
@@ -172,7 +120,51 @@ class DINO(nn.Module):
         super().eval()
         self.encoder = copy.deepcopy(self.student)
             
+
+def cross_entropy_loss(z_t, z_s, temp_s, temp_t, center):
+    z_t = z_t.detach() # stop gradient
+    z_s = z_s / temp_s
+    z_t = F.softmax((z_t - center) / temp_t, dim=1) # center + sharpen
+    return - (z_t * F.log_softmax(z_s, dim=1)).sum(dim=1).mean()
     
+
+class Head(nn.Module):
+    """ Projection Head for DINO """
+    def __init__(self, in_dim, hidden_dim=2048, bottleneck_dim=256, out_dim=256, ):
+        super().__init__()
+
+        self.layer1 = nn.Sequential(
+            nn.Linear(in_dim, hidden_dim),
+            nn.GELU(),
+        )
+        self.layer2 = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.GELU(),
+        )
+        self.layer3 = nn.Sequential(
+            nn.Linear(hidden_dim, bottleneck_dim),
+        )
+        self.apply(self._init_weights)
+        
+        self.last_layer = nn.utils.weight_norm(nn.Linear(bottleneck_dim, out_dim, bias=False))
+        self.last_layer.weight_g.data.fill_(1)
+        self.last_layer.weight_g.requires_grad = False
+        
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = nn.functional.normalize(x, dim=-1, p=2)
+        x = self.last_layer(x)
+        return x 
+    
+    def _init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            torch.nn.init.trunc_normal_(m.weight, std=0.02)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+                
+                
 if __name__ == '__main__':
     import torchvision
     backbone = torchvision.models.resnet50(pretrained=False)
