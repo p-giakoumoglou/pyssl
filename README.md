@@ -160,6 +160,21 @@ for epoch in range(10):
         optimizer.step()
 ```
 
+Note, that each method uses a default augmentation for training, according to original implementation, and the model requires the image size, mean, and standard deviation of the dataset. 
+
+For example:
+
+```python
+kwargs = {
+    'image_size': 224,
+    'mean': [0.485, 0.456, 0.406],
+    'std': [0.229, 0.224, 0.225]
+}
+
+model = BYOL(backbone, feature_size, projection_dim=8192, hidden_dim=8192, lamda=0.005, **kwargs)
+
+```
+
 ## 4. Inference
 
 For inference, use either ```model.encoder(x)``` to get the projection vector (backbone and projector's representations), or use ```model.backbone(x)``` to get the feature vector (backbone representations). The model automatically assigns the ```encoder``` to the corresponding encoder of each method (e.g., student network for BYOL or queue encoder for MoCo series).
