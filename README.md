@@ -151,7 +151,6 @@ for epoch in range(10):  # loop over the dataset multiple times
 
         # compute loss
         loss = model(images)
-        print('[Epoch %2d, Batch %2d] loss: %.3f' % (epoch + 1, i + 1, loss.item()))
         
         # compute gradient and do SGD step
         loss.backward()
