@@ -8,11 +8,6 @@
 MoCo v3: Momentum Contrast v3
 Link: https://arxiv.org/abs/2104.02057
 Implementation: https://github.com/facebookresearch/moco-v3
-
-+ use Vision Transformers
-+ use keys from mini batch
-+ large batch size ~4096
-- remove queue
 """
 
 

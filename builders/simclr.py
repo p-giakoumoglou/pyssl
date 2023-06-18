@@ -8,15 +8,6 @@
 SimCLR: A Simple Framework for Contrastive Learning of Visual Representations
 Link: https://arxiv.org/abs/2002.05709
 Implementation: https://github.com/google-research/simclr
-
-+ no specific architecture
-+ no memory bank
-- large batch size
-- strong data augmentation
-- onlinear transformation between the representation and the contrastive loss
-- normalized embeddings
-- adjusted temperature parameter
-- longer training
 """
 
 import torch

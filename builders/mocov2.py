@@ -8,10 +8,6 @@
 MoCo v2: Momentum Contrast v2
 Link: https://arxiv.org/abs/2003.04297
 Implementation: https://github.com/facebookresearch/moco
-
-+ larger batch size (like SimCLR)
-+ use MLP projection head with 2 layers (like SimCLR)
-+ stronger data augmentation (like SimCLR)
 """
 
 import torch

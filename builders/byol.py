@@ -8,9 +8,6 @@
 BYOL: Bootstrap your own latent: A new approach to self-supervised Learning
 Link: https://arxiv.org/abs/2006.07733
 Implementation: https://github.com/deepmind/deepmind-research/tree/master/byol
-
-TODO
-    - Cosine schedule for momentum update in EMA
 """
 
 import torch

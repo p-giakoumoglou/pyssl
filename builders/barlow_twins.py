@@ -8,13 +8,6 @@
 Barlow Twins
 Link: https://arxiv.org/abs/2104.02057
 Implementation: https://arxiv.org/abs/2103.03230
-
-+ does not require large batch size
-+ does not require asymmetry between the network twins such as a predictor network
-+ does not require gradient stopping
-+ does not require  moving average on the weight updates
-- benefits from high-dimensional embeddings (projection_dim)
-+ cross-correlation matrix computed from twin embeddings as close to the identity matrix as possible
 """
 
 import torch
