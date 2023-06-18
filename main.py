@@ -38,7 +38,7 @@ def main():
     model.train()
     
     # epoch training
-    for epoch in range(10):  # loop over the dataset multiple times
+    for epoch in range(10):
         for i, (images, _) in enumerate(loader):
             images = images.to(device)
     
