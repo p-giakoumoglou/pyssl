@@ -119,6 +119,9 @@ model = SwAV(backbone, feature_size, projection_dim=128, hidden_dim=2048, temper
 The models can directly output the loss, i.e., ```loss = model(x)``` or ```loss = model.forward(x)``` so as to integrate smoothly with the training loop (see main.py).
 
 ```python
+import torch
+import torchvision
+
 # get device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -132,17 +135,17 @@ model = builders.SimCLR(backbone, feature_size, image_size=32)
 model = model.to(device)
     
 # load fake CIFAR-like dataset
-dataset = datasets.FakeData(2000, (3, 32, 32), 10, transforms.ToTensor())
+dataset = torchvision.datasets.FakeData(2000, (3, 32, 32), 10, torchvision.transforms.ToTensor())
 loader = torch.utils.data.DataLoader(dataset, batch_size=128, shuffle=True, num_workers=2)
 
 # set optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # switch to train mode
 model.train()
 
 # epoch training
-for epoch in range(10):  # loop over the dataset multiple times
+for epoch in range(10):
     for i, (images, _) in enumerate(loader):
         images = images.to(device)
 
