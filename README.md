@@ -32,7 +32,9 @@ Once the environment is activated, install the required packages from the "requi
 pip install -r requirements.txt
 ```
 
-## 2. Methods:
+## 2. Methods
+
+The SSL method implementation was based on [lucidrains](https://github.com/lucidrains) implementation of [BYOL](https://github.com/lucidrains/byol-pytorch).
 
 For the following section, assume a backbone, e.g., a ResNet-50, and an input image of size 224 in a batch of 4, i.e.,
 
