@@ -32,13 +32,12 @@ class MoCo(nn.Module):
         self.image_size = image_size
         self.mean = mean
         self.std = std
-        self.encoder_q  = nn.Sequential(self.backbone, self.projector)
+        self.encoder_q  =  self.encoder = nn.Sequential(self.backbone, self.projector)
         self.encoder_k = copy.deepcopy(self.encoder_q)
         self._init_encoder_k()
         self.register_buffer("queue", torch.randn(projection_dim, K))
         self.queue = nn.functional.normalize(self.queue, dim=0)
         self.register_buffer("queue_ptr", torch.zeros(1, dtype=torch.long))
-        self.encoder = copy.deepcopy(self.encoder_q)
         self.augment = T.Compose([
                 T.RandomResizedCrop(image_size, scale=(0.2, 1.0)),
                 T.RandomGrayscale(p=0.2),
@@ -60,11 +59,6 @@ class MoCo(nn.Module):
         loss = contrastive_loss(q, k, self.queue, self.temperature)
         self._dequeue_and_enqueue(k)
         return loss
-    
-    @torch.no_grad()
-    def eval(self):
-        super().eval()
-        self.encoder = copy.deepcopy(self.encoder_q)
     
     @torch.no_grad()
     def _init_encoder_k(self):

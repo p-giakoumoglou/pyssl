@@ -31,11 +31,10 @@ class BYOL(nn.Module):
         self.image_size = image_size
         self.mean = mean
         self.std = std
-        self.online_encoder = nn.Sequential(self.backbone, self.projector)
+        self.online_encoder =  self.encoder = nn.Sequential(self.backbone, self.projector)
         self.online_predictor = MLP(in_dim=projection_dim, hidden_dim=hidden_dim, out_dim=projection_dim)
         self.target_encoder = copy.deepcopy(self.online_encoder) # target must be a deepcopy of online, since we will use the backbone trained by online
         self._init_target_encoder()
-        self.encoder = copy.deepcopy(self.online_encoder)
         self.augment1 = T.Compose([
                 T.RandomResizedCrop(image_size, scale=(0.08, 1.0), ratio=(3.0/4.0,4.0/3.0), interpolation=Image.BICUBIC),
                 T.RandomHorizontalFlip(p=0.5),
@@ -74,11 +73,6 @@ class BYOL(nn.Module):
         for param_o, param_t in zip(self.online_encoder.parameters(), self.target_encoder.parameters()):
             param_t.data = self.tau * param_t.data  + (1. - self.tau) * param_o.data
                   
-    @torch.no_grad()
-    def eval(self):
-        super().eval()
-        self.encoder = copy.deepcopy(self.online_encoder)
-
 
 def mean_squared_error(p, z):
     p = F.normalize(p, dim=1)

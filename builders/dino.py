@@ -35,11 +35,10 @@ class DINO(nn.Module):
         self.mean = mean
         self.std = std
         self.head_student = Head(feature_size, hidden_dim=hidden_dim, bottleneck_dim=bottleneck_dim, out_dim=projection_dim)
-        self.student = nn.Sequential(self.backbone, self.head_student)
+        self.student = self.encoder = nn.Sequential(self.backbone, self.head_student)
         self.head_teacher = Head(feature_size, hidden_dim=hidden_dim, bottleneck_dim=bottleneck_dim, out_dim=projection_dim)
         self.teacher = nn.Sequential(copy.deepcopy(backbone), self.head_teacher)
         self._init_teacher()
-        self.encoder = nn.Sequential(self.backbone, self.head_student)
         self.num_crops = num_crops
         self.augment_global1 = T.Compose([
                 T.RandomResizedCrop(image_size, scale=(0.04, 1.0), interpolation=Image.BICUBIC),
@@ -113,11 +112,6 @@ class DINO(nn.Module):
     @torch.no_grad()
     def _update_center(self, z1_t, z2_t):
         self.center = self.m*self.center + (1-self.m)*torch.cat([z1_t, z2_t]).mean(dim=0)
-        
-    @torch.no_grad()
-    def eval(self):
-        super().eval()
-        self.encoder = copy.deepcopy(self.student)
             
 
 def cross_entropy_loss(z_t, z_s, temp_s, temp_t, center):

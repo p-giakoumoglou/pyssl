@@ -31,11 +31,10 @@ class MoCoV3(nn.Module):
         self.image_size = image_size
         self.mean = mean
         self.std = std
-        self.encoder_q = nn.Sequential(self.backbone, self.projector)
+        self.encoder_q = self.encoder = nn.Sequential(self.backbone, self.projector)
         self.predictor = Predictor(in_dim=projection_dim, hidden_dim=hidden_dim, out_dim=projection_dim)
         self.encoder_k = copy.deepcopy(self.encoder_q)
         self._init_encoder_k()
-        self.encoder = copy.deepcopy(self.encoder_q)
         self.augment1 = T.Compose([
                 T.RandomResizedCrop(image_size, scale=(0.08, 1.0), ratio=(3.0/4.0,4.0/3.0), interpolation=Image.BICUBIC),
                 T.RandomHorizontalFlip(p=0.5),
@@ -75,11 +74,6 @@ class MoCoV3(nn.Module):
         for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
             param_k.data.copy_(param_q.data) 
             param_k.requires_grad = False 
-            
-    @torch.no_grad()
-    def eval(self):
-        super().eval()
-        self.encoder = copy.deepcopy(self.encoder_q)
          
 
 def contrastive_loss(q, k, temperature):
