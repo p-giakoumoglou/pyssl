@@ -56,7 +56,7 @@ class MoCo(nn.Module):
             k = self.encoder_k(x_k) 
             k = nn.functional.normalize(k, dim=1)
             k = self._batch_unshuffle_single_gpu(k, idx_unshuffle)
-        loss = contrastive_loss(q, k, self.queue, self.temperature)
+        loss = infonce_loss(q, k, self.queue, self.temperature)
         self._dequeue_and_enqueue(k)
         return loss
     
@@ -91,7 +91,8 @@ class MoCo(nn.Module):
         return x[idx_unshuffle]
 
 
-def contrastive_loss(q, k, queue, temperature):
+def infonce_loss(q, k, queue, temperature=0.07):
+    """ InfoNCE loss """
     l_pos = torch.einsum("nc,nc->n", [q, k]).unsqueeze(-1)
     l_neg = torch.einsum("nc,ck->nk", [q, queue.clone().detach()])
     logits = torch.cat([l_pos, l_neg], dim=1)

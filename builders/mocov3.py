@@ -7,6 +7,7 @@
 
 import torch
 from torch import nn
+import torch.nn.functional as F 
 import torchvision.transforms as T
 import copy
 from PIL import Image
@@ -61,7 +62,7 @@ class MoCoV3(nn.Module):
             self._update_momentum_encoder()
             k1 = self.encoder_k(x1)
             k2 = self.encoder_k(x2)
-        loss = contrastive_loss(q1, k2, self.temperature) + contrastive_loss(q2, k1, self.temperature)
+        loss = infonce_loss(q1, k2, self.temperature) + infonce_loss(q2, k1, self.temperature)
         return loss
         
     @torch.no_grad()
@@ -76,13 +77,15 @@ class MoCoV3(nn.Module):
             param_k.requires_grad = False 
          
 
-def contrastive_loss(q, k, temperature):
-        q = nn.functional.normalize(q, dim=1)
-        k = nn.functional.normalize(k, dim=1)
-        logits = torch.einsum('nc,mc->nm', [q, k]) / temperature
-        N = logits.shape[0]
-        labels = (torch.arange(N, dtype=torch.long)).to(q.device)
-        return nn.CrossEntropyLoss()(logits, labels) * (2 * temperature)
+def infonce_loss(q, k, temperature=0.07):
+    """ InfoNCE loss """
+    q = nn.functional.normalize(q, dim=1)
+    k = nn.functional.normalize(k, dim=1)
+    logits = torch.einsum('nc,mc->nm', [q, k])
+    logits /= temperature
+    labels = (torch.arange(logits.shape[0], dtype=torch.long)).to(q.device)
+    loss = F.cross_entropy(logits, labels)
+    return loss
 
 
 class Projector(nn.Module):
