@@ -1,4 +1,4 @@
-![pyssl](https://github.com/giakou4/pyssl/assets/57758089/9c072ec2-a75c-449f-b23a-0b0cfc2ae05d)
+![pyssl](https://github.com/giakou4/pyssl/assets/57758089/9bdd43af-f101-42c3-ac20-634d14e290eb)
 
 # PySSL
 
