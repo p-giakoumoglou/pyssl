@@ -1,4 +1,4 @@
-![pngtree-eye-vision-health-optical-watch-abstract-low-poly-wireframe-image_325258](https://github.com/giakou4/pyssl/assets/57758089/f0e7a9e6-8435-423b-b4b0-e90c4f42a39a)
+![pyssl](https://github.com/giakou4/pyssl/assets/57758089/1ed62627-93ec-48ff-b80e-0cc61f6c2be7)
 
 # PySSL
 
