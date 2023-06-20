@@ -1,6 +1,3 @@
-![image](https://github.com/giakou4/pyssl/assets/57758089/66d33669-134d-4a54-aa44-403f91373a97)
-
-
 # PySSL
 
 A PyTorch implementation of Self-Supervised Learning (SSL) methods
