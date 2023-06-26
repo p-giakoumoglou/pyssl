@@ -9,6 +9,10 @@ A PyTorch implementation of Self-Supervised Learning (SSL) methods
 ![issues-closed](https://img.shields.io/github/issues-closed/giakou4/pyssl.svg)
 ![size](https://img.shields.io/github/languages/code-size/giakou4/pyssl)
 
+## Updates
+
+* 19/06/2023 - Post on [medium](https://medium.com/@giakoumoglou4/pyssl-self-supervised-learning-being-easy-again-6debd9e442b8)
+
 
 ## 1. Prerequisites
 
