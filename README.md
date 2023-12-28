@@ -75,9 +75,9 @@ DINO (Distillation of Self-supervised Networks) is a method that trains a studen
 model = DINO(backbone, feature_size, projection_dim=256, hidden_dim=2048, bottleneck_dim=256, temp_s=0.1, temp_t=0.5, m=0.5, lamda=0.996, num_crops=6)
 ```
 
-### 2.4 MOCO, MoCov2, MoCov3
+### 2.4 MoCo, MoCov2, MoCov3
 
-MOCO (Momentum Contrast) series are methods that utilize a dynamic dictionary implemented with a queue and a moving-averaged encoder. The methods aim to maximize similarity between a query and its positive key and minimize similarity between the query and negative keys (v2 and v3 are updated versions with improvements over the original).
+MoCo (Momentum Contrast) series are methods that utilize a dynamic dictionary implemented with a queue and a moving-averaged encoder. The methods aim to maximize similarity between a query and its positive key and minimize similarity between the query and negative keys (v2 and v3 are updated versions with improvements over the original).
 
 ```python
 model = MoCo(backbone, feature_size, projection_dim=128, K=65536, m=0.999, temperature=0.07)
