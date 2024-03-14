@@ -150,14 +150,14 @@ model.train()
 
 # epoch training
 for epoch in range(10):
-    for i, (images, _) in enumerate(loader):
-        images = images.to(device)
+    for i, (x, _) in enumerate(loader):
+        x = x.to(device)
 
         # zero the parameter gradients
         model.zero_grad()
 
         # compute loss
-        loss = model(images)
+        loss = model(x)
         
         # compute gradient and do SGD step
         loss.backward()
